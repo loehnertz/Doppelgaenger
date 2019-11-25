@@ -25,7 +25,7 @@ data class Unit(
 
     override fun hashCode(): Int {
         var result: Int = node.hashCode()
-        result = 31 * result + (location.hashCode() ?: 0)
+        result = 31 * result + location.hashCode()
         return result
     }
 }
