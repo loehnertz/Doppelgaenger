@@ -4,6 +4,7 @@ import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.visitor.TreeVisitor
 import model.Unit
+import utility.leniantHashCode
 import java.nio.file.Path
 
 
@@ -25,7 +26,7 @@ class Visitor {
         return Unit(
             node = node,
             type = node::javaClass.get(),
-            hash = node.hashCode(),
+            hash = node.leniantHashCode(),
             mass = calculateNodeMass(node),
             location = retrieveLocation(node)
         )
