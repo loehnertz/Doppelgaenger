@@ -5,5 +5,5 @@ import java.io.File
 
 data class AnalysisRequest(
     val projectRoot: File,
-    val massThreshold: Int
+    val massThreshold: Int?
 )
