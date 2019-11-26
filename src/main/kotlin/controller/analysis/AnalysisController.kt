@@ -21,7 +21,7 @@ class AnalysisController {
     }
 
     private fun constructAnalysisResponse(clones: List<Clone>, metrics: CloneMetrics): AnalysisResponse {
-        val nodeLessClones: List<Clone> = clones.map { clone -> clone.map { it.removeNode() }.toSet() }
+        val nodeLessClones: List<Clone> = clones.map { clone -> Pair(clone.first.removeNode(), clone.second.removeNode()) }
         return AnalysisResponse(clones = nodeLessClones, metrics = metrics)
     }
 }

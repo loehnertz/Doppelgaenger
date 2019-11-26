@@ -3,6 +3,7 @@ package controller.analysis.detection
 import com.github.javaparser.ast.Node
 import model.Unit
 import utility.Clone
+import utility.Utility
 
 
 class CloneDetector(private val units: List<Unit>, private val massThreshold: Int?) {
@@ -11,19 +12,21 @@ class CloneDetector(private val units: List<Unit>, private val massThreshold: In
             .filter { it.mass >= massThreshold ?: calculateNodeMassAverage() }
             .groupBy { it.hash }
             .filter { it.value.size > 1 }
-            .map { it.value.toSet() }
+            .map { it.value }
+            .flatMap { Utility.cartesianProduct(it) }
 
         val cloneNodes: List<Node> = clones
             .flatMap { clone ->
-                clone.map { it.node!! }
+                clone.toList().map { it.node!! }
             }
 
         return clones
-            .map { clone ->
-                clone.filter { unit -> !getAllParentNodes(unit.node!!).any { parent -> cloneNodes.contains(parent) } }
+            .filter { clone ->
+                return@filter listOf(
+                    !getAllParentNodes(clone.first.node!!).any { parent -> cloneNodes.contains(parent) },
+                    !getAllParentNodes(clone.second.node!!).any { parent -> cloneNodes.contains(parent) }
+                ).any { it }
             }
-            .filter { it.size > 1 }
-            .map { it.toSet() }
     }
 
     private fun getAllParentNodes(node: Node): Set<Node> {
