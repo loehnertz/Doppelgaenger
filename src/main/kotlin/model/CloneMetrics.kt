@@ -7,7 +7,7 @@ data class CloneMetrics(
     val numberOfClones: Int? = null,
     val numberOfCloneClasses: Int? = null,
     val percentageOfDuplicatedLines: Int? = null,
-    val largestClone: Pair<JsonClone, Int>? = null,
+    val largestClone: Pair<JsonClone, Int>,
     val largestCloneClass: Unit? = null,
     val exampleClones: List<JsonClone>
 )
