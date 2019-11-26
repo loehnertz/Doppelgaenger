@@ -11,13 +11,15 @@ import com.github.javaparser.ast.stmt.*
 import com.github.javaparser.ast.type.*
 import com.github.javaparser.ast.visitor.GenericVisitor
 import com.github.javaparser.ast.visitor.Visitable
+import model.CloneType
+
 
 /**
  * This class is derived from <code>com.github.javaparser.ast.visitor.HashCodeVisitor</code>
  * to ignore <code>com.github.javaparser.ast.expr.NameExpr</code> in the <code>hashCode()</code>
  * calculation. Additionally, instead of Java it is written in Kotlin.
  */
-class LeniantHashCodeVisitor private constructor() : GenericVisitor<Int?, Void?> {
+class LeniantHashCodeVisitor private constructor(private var cloneType: CloneType) : GenericVisitor<Int?, Void?> {
     override fun visit(n: AnnotationDeclaration?, arg: Void?): Int? {
         return n!!.members.accept(this, arg)!! * 31 + n.modifiers.accept(this, arg)!! * 31 + n.name.accept(this, arg)!! * 31 + n.annotations.accept(this, arg)!! * 31 + if (n.comment.isPresent) n.comment.get().accept(this, arg)!! else 0
     }
@@ -59,7 +61,7 @@ class LeniantHashCodeVisitor private constructor() : GenericVisitor<Int?, Void?>
     }
 
     override fun visit(n: BlockComment?, arg: Void?): Int? {
-        return n!!.content.hashCode() * 31 + if (n.comment.isPresent) n.comment.get().accept(this, arg)!! else 0
+        return 31
     }
 
     override fun visit(n: BlockStmt?, arg: Void?): Int? {
@@ -95,7 +97,8 @@ class LeniantHashCodeVisitor private constructor() : GenericVisitor<Int?, Void?>
     }
 
     override fun visit(n: ClassOrInterfaceType?, arg: Void?): Int? {
-        return n!!.name.accept(this, arg)!! * 31 + (if (n.scope.isPresent) n.scope.get().accept(this, arg) else 0)!! * 31 + (if (n.typeArguments.isPresent) n.typeArguments.get().accept(this, arg) else 0)!! * 31 + n.annotations.accept(this, arg)!! * 31 + if (n.comment.isPresent) n.comment.get().accept(this, arg)!! else 0
+        if (cloneType == CloneType.ONE) return n!!.name.accept(this, arg)!! * 31 + (if (n.scope.isPresent) n.scope.get().accept(this, arg) else 0)!! * 31 + (if (n.typeArguments.isPresent) n.typeArguments.get().accept(this, arg) else 0)!! * 31 + n.annotations.accept(this, arg)!! * 31 + if (n.comment.isPresent) n.comment.get().accept(this, arg)!! else 0
+        return 31
     }
 
     override fun visit(n: CompilationUnit?, arg: Void?): Int? {
@@ -187,7 +190,7 @@ class LeniantHashCodeVisitor private constructor() : GenericVisitor<Int?, Void?>
     }
 
     override fun visit(n: JavadocComment?, arg: Void?): Int? {
-        return n!!.content.hashCode() * 31 + if (n.comment.isPresent) n.comment.get().accept(this, arg)!! else 0
+        return 31
     }
 
     override fun visit(n: LabeledStmt?, arg: Void?): Int? {
@@ -199,7 +202,7 @@ class LeniantHashCodeVisitor private constructor() : GenericVisitor<Int?, Void?>
     }
 
     override fun visit(n: LineComment?, arg: Void?): Int? {
-        return n!!.content.hashCode() * 31 + if (n.comment.isPresent) n.comment.get().accept(this, arg)!! else 0
+        return 31
     }
 
     override fun visit(n: LocalClassDeclarationStmt?, arg: Void?): Int? {
@@ -231,7 +234,8 @@ class LeniantHashCodeVisitor private constructor() : GenericVisitor<Int?, Void?>
     }
 
     override fun visit(n: NameExpr?, arg: Void?): Int? {
-        return 31 + if (n!!.comment.isPresent) n.comment.get().accept(this, arg)!! else 0
+        if (cloneType == CloneType.ONE) return n!!.name.accept<Int, Void>(this, arg) * 31 + if (n.comment.isPresent) n.comment.get().accept<Int, Void?>(this, arg) else 0
+        return 31
     }
 
     override fun visit(n: Name?, arg: Void?): Int? {
@@ -275,7 +279,8 @@ class LeniantHashCodeVisitor private constructor() : GenericVisitor<Int?, Void?>
     }
 
     override fun visit(n: SimpleName?, arg: Void?): Int? {
-        return n!!.identifier.hashCode() * 31 + if (n.comment.isPresent) n.comment.get().accept(this, arg)!! else 0
+        if (cloneType == CloneType.ONE) return n!!.identifier.hashCode() * 31 + if (n.comment.isPresent) n.comment.get().accept(this, arg)!! else 0
+        return 31
     }
 
     override fun visit(n: SingleMemberAnnotationExpr?, arg: Void?): Int? {
@@ -407,10 +412,14 @@ class LeniantHashCodeVisitor private constructor() : GenericVisitor<Int?, Void?>
     }
 
     companion object {
-        private val SINGLETON: LeniantHashCodeVisitor? = LeniantHashCodeVisitor()
+        private val SINGLETON: LeniantHashCodeVisitor = LeniantHashCodeVisitor(cloneType = CloneType.ONE)
 
-        fun hashCode(node: Node?): Int {
-            return node!!.accept(SINGLETON, null)!!
+        fun hashCode(node: Node): Int {
+            return node.accept(SINGLETON, null)!!
+        }
+
+        fun setCloneType(cloneType: CloneType) {
+            SINGLETON.cloneType = cloneType
         }
     }
 }

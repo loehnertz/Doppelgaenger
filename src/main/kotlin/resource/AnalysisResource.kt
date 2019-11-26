@@ -10,17 +10,20 @@ import io.ktor.routing.get
 import io.ktor.routing.route
 import model.AnalysisRequest
 import model.AnalysisResponse
+import model.CloneType
+import model.CloneType.Companion.getCloneTypeByName
 import java.io.File
 
 
 fun Route.analysis(controller: AnalysisController) {
     route("/analysis") {
         get("/") {
-            val analysisRequest = AnalysisRequest(
+            val request = AnalysisRequest(
                 projectRoot = File(call.parameters["projectRoot"]!!.toString()),
+                cloneType = getCloneTypeByName(call.parameters["cloneType"] ?: CloneType.ONE.toString()),
                 massThreshold = call.parameters["massThreshold"]?.toInt()
             )
-            val response: AnalysisResponse = controller.analyze(analysisRequest)
+            val response: AnalysisResponse = controller.analyze(request)
             call.respond(response)
         }
     }
