@@ -51,4 +51,20 @@ data class Unit(
     override fun toString(): String {
         return "Unit(content='$content', range=$range, location=$location)"
     }
+
+    companion object {
+        private val DEFAULT_CLONETYPE = CloneType.ONE
+
+        fun fromNode(node: Node, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
+            return Unit(
+                node = node,
+                content = node.tokenRange.get().toString(),
+                range = node.range.get(),
+                location = node.retrieveLocation(),
+                type = node::class,
+                hash = node.leniantHashCode(cloneType),
+                mass = node.calculateMass()
+            )
+        }
+    }
 }
