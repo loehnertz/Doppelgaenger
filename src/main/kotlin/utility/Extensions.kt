@@ -22,6 +22,14 @@ fun Node.retrieveLocation(): Path {
     }
 }
 
+fun Node.getAllParentNodes(): Set<Node> {
+    return if (this.parentNode.isEmpty) {
+        setOf()
+    } else {
+        this.parentNode.get().getAllParentNodes().plus(this.parentNode.get())
+    }
+}
+
 fun Node.leniantHashCode(cloneType: CloneType = CloneType.ONE): Int {
     LeniantHashCodeVisitor.setCloneType(cloneType)
     return LeniantHashCodeVisitor.hashCode(this)

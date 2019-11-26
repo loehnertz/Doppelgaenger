@@ -1,7 +1,7 @@
 package utility
 
 
-object Utility {
+object Utilities {
     fun <T> cartesianProduct(list: List<T>): List<Pair<T, T>> {
         val pairs: ArrayList<Pair<T, T>> = arrayListOf()
         for (item1 in list) {
