@@ -4,8 +4,8 @@ import utility.Clone
 
 
 data class CloneMetrics(
-    val numberOfClones: Int,
-    val numberOfCloneClasses: Int,
-    val percentageOfDuplicatedLines: Int,
-    val largestClone: Pair<Clone, Int>
+    val numberOfClones: Int? = null,
+    val numberOfCloneClasses: Int? = null,
+    val percentageOfDuplicatedLines: Int? = null,
+    val largestClone: Pair<Clone, Int>? = null
 )
