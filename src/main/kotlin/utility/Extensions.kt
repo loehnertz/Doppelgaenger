@@ -9,6 +9,11 @@ import java.util.*
 
 fun <T : Any> Optional<T>.toNullable(): T? = this.orElse(null)
 
+inline fun <T, R> Pair<T, T>.map(transform: (T) -> R): Pair<R, R> {
+    val pairList: List<R> = this.toList().map { transform(it) }
+    return Pair(pairList.first(), pairList.last())
+}
+
 fun Node.retrieveLocation(): Path {
     return if (this.parentNode.isEmpty || this.parentNode == null) {
         (this as CompilationUnit).storage.get().path
