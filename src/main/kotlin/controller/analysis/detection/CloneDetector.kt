@@ -11,26 +11,30 @@ class CloneDetector(private val units: List<Unit>, private val massThreshold: In
         val clones: List<Clone> = units
             .filter { it.mass >= massThreshold ?: calculateNodeMassAverage() }
             .groupBy { it.hash }
-            .filter { it.value.size > 1 }
             .map { it.value }
+            .filter { it.size > 1 }
             .flatMap { Utility.cartesianProduct(it) }
 
         val cloneNodes: List<Node> = clones
             .flatMap { clone ->
-                clone.toList().map { it.node!! }
+                clone.toList().map { it.node }
             }
 
         return clones
             .filter { clone ->
-                return@filter listOf(
-                    !getAllParentNodes(clone.first.node!!).any { parent -> cloneNodes.contains(parent) },
-                    !getAllParentNodes(clone.second.node!!).any { parent -> cloneNodes.contains(parent) }
+                listOf(
+                    isNotSubClone(clone.first.node, cloneNodes),
+                    isNotSubClone(clone.second.node, cloneNodes)
                 ).any { it }
             }
     }
 
+    private fun isNotSubClone(node: Node, cloneNodes: List<Node>): Boolean {
+        return !getAllParentNodes(node).any { parent -> cloneNodes.contains(parent) }
+    }
+
     private fun getAllParentNodes(node: Node): Set<Node> {
-        return if (node.parentNode.isEmpty || node.parentNode == null) {
+        return if (node.parentNode.isEmpty) {
             setOf()
         } else {
             getAllParentNodes(node.parentNode.get()).plus(node.parentNode.get())
