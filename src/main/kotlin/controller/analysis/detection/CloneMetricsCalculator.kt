@@ -9,10 +9,17 @@ import utility.map
 
 class CloneMetricsCalculator(private val clones: List<Clone>) {
     fun calculateMetrics(): CloneMetrics {
+        val clonedUnits: List<Unit> = retrieveClonedUnits()
+
         return CloneMetrics(
+            numberOfClones = clonedUnits.count(),
             largestClone = findLargestClone(),
             exampleClones = selectRandomExampleClones()
         )
+    }
+
+    private fun retrieveClonedUnits(): List<Unit> {
+        return clones.flatMap { it.toList() }.toSet().let { CloneUtilities.filterOutSubClonesFromCloneUnitCollection(it) }
     }
 
     private fun findLargestClone(): Pair<JsonClone, Int> {
