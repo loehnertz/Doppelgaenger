@@ -11,6 +11,6 @@ object Utility {
                 pairs.add(Pair(item1, item2))
             }
         }
-        return pairs
+        return pairs.toList()
     }
 }

@@ -1,11 +1,8 @@
 package controller.analysis.parsing
 
-import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.visitor.TreeVisitor
 import model.Unit
-import utility.leniantHashCode
-import java.nio.file.Path
 
 
 class Visitor {
@@ -17,30 +14,8 @@ class Visitor {
         }
     }
 
-    fun visit(node: Node): List<Unit> {
+    fun visit(node: Node, nodeConversionFunction: (Node) -> Unit): List<Unit> {
         visitor.visitPreOrder(node)
-        return nodes.map { convertNodeToUnit(it) }.also { nodes.clear() }
+        return nodes.map { nodeConversionFunction(it) }.also { nodes.clear() }
     }
-
-    private fun convertNodeToUnit(node: Node): Unit {
-        return Unit(
-            node = node,
-            content = node.tokenRange.get().toString(),
-            range = node.range.get(),
-            location = retrieveLocation(node),
-            type = node::javaClass.get(),
-            hash = node.leniantHashCode(),
-            mass = calculateNodeMass(node)
-        )
-    }
-
-    private fun retrieveLocation(node: Node): Path {
-        return if (node.parentNode.isEmpty || node.parentNode == null) {
-            (node as CompilationUnit).storage.get().path
-        } else {
-            retrieveLocation(node.parentNode.get())
-        }
-    }
-
-    private fun calculateNodeMass(node: Node): Int = 1 + node.childNodes.sumBy { calculateNodeMass(it) }
 }

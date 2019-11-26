@@ -2,21 +2,30 @@ package model
 
 import com.github.javaparser.Range
 import com.github.javaparser.ast.Node
+import utility.calculateMass
+import utility.leniantHashCode
+import utility.retrieveLocation
 import java.nio.file.Path
+import kotlin.reflect.KClass
 
 
 data class Unit(
-    var node: Node?,
+    val node: Node,
     val content: String,
     val range: Range,
     val location: Path,
-    val type: Class<Node>,
+    val type: KClass<out Node>,
     val hash: Int,
     val mass: Int
 ) {
-    fun removeNode(): Unit {
-        this.node = null
-        return this
+    fun convertToJsonUnit(): JsonUnit {
+        return JsonUnit(
+            content = content,
+            range = range,
+            location = location,
+            hash = hash,
+            mass = mass
+        )
     }
 
     override fun equals(other: Any?): Boolean {

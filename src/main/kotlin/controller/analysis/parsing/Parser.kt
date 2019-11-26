@@ -2,28 +2,39 @@ package controller.analysis.parsing
 
 import com.github.javaparser.JavaParser
 import com.github.javaparser.ParserConfiguration
+import com.github.javaparser.ast.Node
 import com.github.javaparser.symbolsolver.JavaSymbolSolver
 import com.github.javaparser.symbolsolver.model.resolution.TypeSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver
+import model.CloneType
 import model.Unit
 import utility.toNullable
 import java.io.File
 import java.nio.file.Paths
+import kotlin.reflect.KClass
 
 
-class Parser(private val projectRoot: File) {
+class Parser(private val projectRoot: File, private val cloneType: CloneType) {
     fun parse(): List<Unit> {
-        val parser: JavaParser = constructJavaParser()
+        val parser = constructJavaParser()
         val visitor = Visitor()
+        val nodeConversionFunction = constructNodeConversionFunction()
+
         return projectRoot
             .walk()
             .filter { !it.isDirectory }
             .mapNotNull { parser.parse(it).result.toNullable() }
-            .map { visitor.visit(it) }
+            .map { visitor.visit(it, nodeConversionFunction) }
             .flatten()
             .toList()
+    }
+
+    private fun filterOutNodeTypes(node: Node, vararg types: KClass<out Node>): Node {
+        node.childNodes.removeAll { types.contains(it::class) }
+        node.childNodes.forEach { filterOutNodeTypes(it, *types) }
+        return node
     }
 
     private fun constructJavaParser(): JavaParser {
@@ -39,5 +50,9 @@ class Parser(private val projectRoot: File) {
         if (sourceCodeLocation != null) combinedTypeSolver.add(JavaParserTypeSolver(sourceCodeLocation.absolutePath))
         if (compiledCodeLocation != null) combinedTypeSolver.add(JarTypeSolver(Paths.get(compiledCodeLocation.absolutePath)))
         return combinedTypeSolver
+    }
+
+    private fun constructNodeConversionFunction(): (Node) -> Unit {
+        return { node: Node -> Unit.fromNode(node = node, cloneType = cloneType) }
     }
 }
