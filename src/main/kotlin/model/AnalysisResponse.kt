@@ -1,7 +1,9 @@
 package model
 
+import utility.JsonClone
+
 
 class AnalysisResponse(
-    val clones: List<Pair<JsonUnit, JsonUnit>>,
+    val clones: List<JsonClone>,
     val metrics: CloneMetrics
 )

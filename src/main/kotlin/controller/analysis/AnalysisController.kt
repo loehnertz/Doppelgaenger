@@ -3,7 +3,9 @@ package controller.analysis
 import controller.analysis.detection.CloneDetector
 import controller.analysis.detection.CloneMetricsCalculator
 import controller.analysis.parsing.Parser
-import model.*
+import model.AnalysisRequest
+import model.AnalysisResponse
+import model.CloneMetrics
 import model.Unit
 import utility.Clone
 
@@ -19,7 +21,6 @@ class AnalysisController {
     }
 
     private fun constructAnalysisResponse(clones: List<Clone>, metrics: CloneMetrics): AnalysisResponse {
-        val jsonFriendlyClones: List<Pair<JsonUnit, JsonUnit>> = clones.map { Pair(it.first.convertToJsonUnit(), it.second.convertToJsonUnit()) }
-        return AnalysisResponse(clones = jsonFriendlyClones, metrics = metrics)
+        return AnalysisResponse(clones = clones.map { Pair(it.first.convertToJsonUnit(), it.second.convertToJsonUnit()) }, metrics = metrics)
     }
 }
