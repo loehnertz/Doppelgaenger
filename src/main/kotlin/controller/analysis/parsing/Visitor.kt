@@ -25,10 +25,12 @@ class Visitor {
     private fun convertNodeToUnit(node: Node): Unit {
         return Unit(
             node = node,
+            content = node.tokenRange.get().toString(),
+            range = node.range.get(),
+            location = retrieveLocation(node),
             type = node::javaClass.get(),
             hash = node.leniantHashCode(),
-            mass = calculateNodeMass(node),
-            location = retrieveLocation(node)
+            mass = calculateNodeMass(node)
         )
     }
 
