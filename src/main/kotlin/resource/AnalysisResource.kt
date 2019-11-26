@@ -9,7 +9,7 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
 import model.AnalysisRequest
-import model.Unit
+import model.AnalysisResponse
 import java.io.File
 
 
@@ -20,8 +20,8 @@ fun Route.analysis(controller: AnalysisController) {
                 projectRoot = File(call.parameters["projectRoot"]!!.toString()),
                 massThreshold = call.parameters["massThreshold"]?.toInt()
             )
-            val clones: List<List<Unit>> = controller.analyze(analysisRequest)
-            call.respond(clones.map { clone -> clone.map { Pair(it.node.toString(), it.location.toString()) } })
+            val response: AnalysisResponse = controller.analyze(analysisRequest)
+            call.respond(response)
         }
     }
 
