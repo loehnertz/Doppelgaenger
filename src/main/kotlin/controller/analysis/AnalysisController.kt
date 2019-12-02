@@ -15,7 +15,7 @@ class AnalysisController {
         val startTime: Long = System.currentTimeMillis()
         val units: List<Unit> = Parser(analysisRequest.projectRoot, analysisRequest.cloneType).parse()
         val clones: List<Clone> = CloneDetector(units, analysisRequest.massThreshold).detectClones()
-        val metrics: CloneMetrics = CloneMetricsCalculator(clones).calculateMetrics()
+        val metrics: CloneMetrics = CloneMetricsCalculator(clones, units).calculateMetrics()
         return constructAnalysisResponse(clones, metrics)
             .also { println("The analysis of project '${analysisRequest.projectRoot}' took ${(System.currentTimeMillis() - startTime) / 1000} seconds.") }
     }
