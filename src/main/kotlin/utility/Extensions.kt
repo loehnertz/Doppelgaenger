@@ -15,7 +15,7 @@ inline fun <T, R> Pair<T, T>.map(transform: (T) -> R): Pair<R, R> {
 }
 
 fun Node.retrieveLocation(): Path {
-    return if (this.parentNode.isEmpty || this.parentNode == null) {
+    return if (this.parentNode.isEmpty) {
         (this as CompilationUnit).storage.get().path
     } else {
         this.parentNode.get().retrieveLocation()

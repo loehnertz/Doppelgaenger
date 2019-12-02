@@ -5,7 +5,7 @@ import utility.Clone
 import utility.Utilities
 
 
-class CloneDetector(private val units: List<Unit>, private val massThreshold: Int?) {
+class CloneDetector(private val units: List<Unit>, private val massThreshold: Int?) : CloneHandler {
     fun detectClones(): List<Clone> {
         return units
             .filter { it.mass >= massThreshold ?: calculateNodeMassAverage() }
@@ -13,7 +13,7 @@ class CloneDetector(private val units: List<Unit>, private val massThreshold: In
             .map { it.value }
             .filter { it.size > 1 }
             .flatMap { Utilities.cartesianProduct(it) }
-            .let { CloneUtilities.filterOutSubClonesFromCloneCollection(it) }
+            .let { filterOutSubClonesFromCloneCollection(it) }
     }
 
     private fun calculateNodeMassAverage(): Int = units.map { it.mass }.average().toInt()

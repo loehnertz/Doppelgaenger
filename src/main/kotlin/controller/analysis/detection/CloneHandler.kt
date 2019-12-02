@@ -6,7 +6,7 @@ import utility.Clone
 import utility.getAllParentNodes
 
 
-object CloneUtilities {
+interface CloneHandler {
     fun filterOutSubClonesFromCloneCollection(clones: Collection<Clone>): List<Clone> {
         val cloneNodes: List<Node> = retrieveAllCloneNodes(clones)
         return clones.filter { clone ->
