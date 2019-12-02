@@ -2,7 +2,7 @@ package controller.analysis.detection
 
 import model.Unit
 import utility.Clone
-import utility.Utilities
+import utility.cartesianProduct
 
 
 class CloneDetector(private val units: List<Unit>, private val massThreshold: Int?) : CloneHandler {
@@ -12,7 +12,7 @@ class CloneDetector(private val units: List<Unit>, private val massThreshold: In
             .groupBy { it.hash }
             .map { it.value }
             .filter { it.size > 1 }
-            .flatMap { Utilities.cartesianProduct(it) }
+            .flatMap { it.cartesianProduct() }
             .let { filterOutSubClonesFromCloneCollection(it) }
     }
 

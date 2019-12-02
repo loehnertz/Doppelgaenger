@@ -14,6 +14,18 @@ inline fun <T, R> Pair<T, T>.map(transform: (T) -> R): Pair<R, R> {
     return Pair(pairList.first(), pairList.last())
 }
 
+fun <T> Collection<T>.cartesianProduct(): List<Pair<T, T>> {
+    val pairs: ArrayList<Pair<T, T>> = arrayListOf()
+    for (item1 in this) {
+        for (item2 in this) {
+            if (item1 == item2) continue
+            if (pairs.contains(Pair(item1, item2)) || pairs.contains(Pair(item2, item1))) continue
+            pairs.add(Pair(item1, item2))
+        }
+    }
+    return pairs.toList()
+}
+
 fun Node.retrieveLocation(): Path {
     return if (this.parentNode.isEmpty) {
         (this as CompilationUnit).storage.get().path
