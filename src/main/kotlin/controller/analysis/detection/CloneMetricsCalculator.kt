@@ -11,9 +11,11 @@ import utility.map
 class CloneMetricsCalculator(private val clones: List<Clone>, private val units: List<Unit>) : CloneHandler {
     fun calculateMetrics(): CloneMetrics {
         val clonedUnits: List<Unit> = retrieveClonedUnits()
+        val cloneClasses: Map<Int, List<Unit>> = retrieveCloneClasses(clonedUnits)
 
         return CloneMetrics(
             numberOfClones = clonedUnits.count(),
+            numberOfCloneClasses = cloneClasses.count(),
             percentageOfDuplicatedLines = calculatePercentageOfDuplicatedLines(clonedUnits),
             largestClone = findLargestClone(),
             exampleClones = selectRandomExampleClones()
@@ -22,6 +24,10 @@ class CloneMetricsCalculator(private val clones: List<Clone>, private val units:
 
     private fun retrieveClonedUnits(): List<Unit> {
         return clones.flatMap { it.toList() }.toSet().let { filterOutSubClonesFromCloneUnitCollection(it) }
+    }
+
+    private fun retrieveCloneClasses(clonedUnits: List<Unit>): Map<Int, List<Unit>> {
+        return clonedUnits.groupBy { it.hash }
     }
 
     private fun calculatePercentageOfDuplicatedLines(clonedUnits: List<Unit>): Int {
@@ -57,6 +63,6 @@ class CloneMetricsCalculator(private val clones: List<Clone>, private val units:
     companion object Constants {
         private const val EXAMPLE_CLONE_AMOUNT = 10
         private const val SinglelineCommentToken = "//"
-        private val MultilineCommentRegex = Regex("\\/\\*[\\s\\S]*?\\*\\/", RegexOption.MULTILINE)
+        private val MultilineCommentRegex = Regex("/\\*[\\s\\S]*?\\*/", RegexOption.MULTILINE)
     }
 }
