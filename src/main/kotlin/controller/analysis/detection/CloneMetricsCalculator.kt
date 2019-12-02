@@ -2,22 +2,25 @@ package controller.analysis.detection
 
 import com.github.javaparser.ast.CompilationUnit
 import model.CloneMetrics
+import model.JsonUnit
 import model.Unit
 import utility.Clone
 import utility.JsonClone
 import utility.map
+import java.io.File
 
 
 class CloneMetricsCalculator(private val clones: List<Clone>, private val units: List<Unit>) : CloneHandler {
-    fun calculateMetrics(): CloneMetrics {
-        val clonedUnits: List<Unit> = retrieveClonedUnits()
-        val cloneClasses: Map<Int, List<Unit>> = retrieveCloneClasses(clonedUnits)
+    private val clonedUnits: List<Unit> = retrieveClonedUnits()
+    private val cloneClasses: Map<Int, List<Unit>> = retrieveCloneClasses(clonedUnits)
 
+    fun calculateMetrics(): CloneMetrics {
         return CloneMetrics(
             numberOfClones = clonedUnits.count(),
             numberOfCloneClasses = cloneClasses.count(),
-            percentageOfDuplicatedLines = calculatePercentageOfDuplicatedLines(clonedUnits),
+            percentageOfDuplicatedLines = calculatePercentageOfDuplicatedLines(),
             largestClone = findLargestClone(),
+            largestCloneClass = findLargestCloneClass(),
             exampleClones = selectRandomExampleClones()
         )
     }
@@ -30,7 +33,7 @@ class CloneMetricsCalculator(private val clones: List<Clone>, private val units:
         return clonedUnits.groupBy { it.hash }
     }
 
-    private fun calculatePercentageOfDuplicatedLines(clonedUnits: List<Unit>): Int {
+    private fun calculatePercentageOfDuplicatedLines(): Int {
         val totalLinesOfCode: Double = countLinesOfCode(units).toDouble()
         val clonedLinesOfCode: Double = clonedUnits.sumBy { countSourceLinesOfCode(it.content) }.toDouble()
         return ((clonedLinesOfCode / totalLinesOfCode) * 100).toInt()
@@ -41,14 +44,19 @@ class CloneMetricsCalculator(private val clones: List<Clone>, private val units:
         return Pair(largestClone.map { it.convertToJsonUnit() }, listOf(largestClone.first.range.lineCount, largestClone.second.range.lineCount).max()!!)
     }
 
+    private fun findLargestCloneClass(): List<JsonUnit> {
+        val largestCloneClass: List<Unit> = cloneClasses.values.maxBy { cloneClass -> cloneClass.maxBy { unit -> unit.content.length }!!.content.length }!!
+        return largestCloneClass.map { it.convertToJsonUnit() }
+    }
+
     private fun selectRandomExampleClones(): List<JsonClone> {
         return clones.shuffled().take(EXAMPLE_CLONE_AMOUNT).map { Pair(it.first.convertToJsonUnit(), it.second.convertToJsonUnit()) }
     }
 
     private fun countLinesOfCode(units: List<Unit>): Int {
-        val files = units.filter { it.node is CompilationUnit }.map { it.node as CompilationUnit }.map { it.storage.get().path.toFile() }.toSet()
-        val fileLinesWithoutBlockComments = files.map { it.readText() }.map { it.replace(MultilineCommentRegex, "") }.map { it.split("\n") }
-        val fileLinesWithoutBlockCommentsAndLineComments = fileLinesWithoutBlockComments.map { fileContents -> fileContents.filter { !isBlankLine(it) && !isCommentLine(it) } }
+        val files: Set<File> = units.filter { it.node is CompilationUnit }.map { it.node as CompilationUnit }.map { it.storage.get().path.toFile() }.toSet()
+        val fileLinesWithoutBlockComments: List<List<String>> = files.map { it.readText() }.map { it.replace(MultilineCommentRegex, "") }.map { it.split("\n") }
+        val fileLinesWithoutBlockCommentsAndLineComments: List<List<String>> = fileLinesWithoutBlockComments.map { fileContents -> fileContents.filter { !isBlankLine(it) && !isCommentLine(it) } }
         return fileLinesWithoutBlockCommentsAndLineComments.sumBy { it.count() }
     }
 
