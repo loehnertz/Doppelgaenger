@@ -1,4 +1,0 @@
-package utility
-
-
-object Utility {}
