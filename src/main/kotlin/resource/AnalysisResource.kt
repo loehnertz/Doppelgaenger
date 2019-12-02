@@ -24,7 +24,7 @@ fun Route.analysis(controller: AnalysisController) {
                 massThreshold = call.parameters["massThreshold"]?.toInt()
             )
             val response: AnalysisResponse = controller.analyze(request)
-            call.respond(response)
+            call.respond(response).also { controller.writeResponseToFile(request, response) }
         }
     }
 
