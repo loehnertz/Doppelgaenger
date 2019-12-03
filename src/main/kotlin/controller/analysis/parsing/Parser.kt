@@ -19,14 +19,13 @@ import kotlin.reflect.KClass
 class Parser(private val projectRoot: File, private val cloneType: CloneType) {
     fun parse(): List<Unit> {
         val parser = constructJavaParser()
-        val visitor = Visitor()
         val nodeConversionFunction = constructNodeConversionFunction()
 
         return projectRoot
             .walk()
-            .filter { !it.isDirectory }
+            .filter { it.isFile }
             .mapNotNull { parser.parse(it).result.toNullable() }
-            .map { visitor.visit(it, nodeConversionFunction) }
+            .map { Visitor.visit(it, nodeConversionFunction) }
             .flatten()
             .toList()
     }
