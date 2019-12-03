@@ -8,6 +8,8 @@ import model.AnalysisResponse
 import model.CloneMetrics
 import model.Unit
 import utility.Clone
+import utility.toJson
+import java.io.File
 
 
 class AnalysisController {
@@ -22,5 +24,9 @@ class AnalysisController {
 
     private fun constructAnalysisResponse(clones: List<Clone>, metrics: CloneMetrics): AnalysisResponse {
         return AnalysisResponse(clones = clones.map { Pair(it.first.convertToJsonUnit(), it.second.convertToJsonUnit()) }, metrics = metrics)
+    }
+
+    fun writeResponseToFile(analysisRequest: AnalysisRequest, response: AnalysisResponse) {
+        File("${analysisRequest.projectRoot.absolutePath}/report.json").also { it.delete() }.also { it.createNewFile() }.writeText(response.toJson())
     }
 }

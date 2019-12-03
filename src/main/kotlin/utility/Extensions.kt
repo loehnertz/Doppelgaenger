@@ -1,5 +1,6 @@
 package utility
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Node
 import model.CloneType
@@ -8,6 +9,8 @@ import java.util.*
 
 
 fun <T : Any> Optional<T>.toNullable(): T? = this.orElse(null)
+
+fun Any.toJson(): String = ObjectMapper().writeValueAsString(this)
 
 inline fun <T, R> Pair<T, T>.map(transform: (T) -> R): Pair<R, R> {
     val pairList: List<R> = this.toList().map { transform(it) }
