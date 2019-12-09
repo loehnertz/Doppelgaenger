@@ -9,14 +9,16 @@ import utility.*
 class CloneDetector(private val units: List<Unit>, massThreshold: Int?, private val similarityThreshold: Double) : CloneHandler {
     private val massThreshold = massThreshold ?: calculateNodeMassAverage()
 
-    fun detectClones(): List<Clone> {
-        return units
+    fun detectClones(): Pair<List<Clone>, List<Set<Unit>>> {
+        val clones: List<Clone> = units
             .filter { it.mass >= massThreshold }
             .groupBy { it.hash }
             .map { it.value }
             .filter { it.size > 1 }
             .flatMap { it.cartesianProduct() } // TODO: Add filter by similarity
             .let { filterOutSubClonesFromCloneCollection(it) }
+        val cloneClasses: List<Set<Unit>> = retrieveCloneClasses(clones)
+        return clones to cloneClasses
     }
 
     // This is still a draft

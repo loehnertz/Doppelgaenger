@@ -49,7 +49,14 @@ interface CloneHandler {
     }
 
     fun computeSimilarity(sharedNodesCount: Int, onlyInFirstCount: Int, onlyInSecondCount: Int): Double {
-        return 2*sharedNodesCount.toDouble() / (2*sharedNodesCount + onlyInFirstCount + onlyInSecondCount).toDouble()
+        return 2 * sharedNodesCount.toDouble() / (2 * sharedNodesCount + onlyInFirstCount + onlyInSecondCount).toDouble()
     }
 
+    fun retrieveClonedUnits(clones: List<Clone>): List<Unit> {
+        return clones.flatMap { it.toList() }.toSet().let { filterOutSubClonesFromCloneUnitCollection(it) }
+    }
+
+    fun retrieveCloneClasses(clones: List<Clone>): List<Set<Unit>> {
+        return retrieveClonedUnits(clones).groupBy { it.hash }.map { it.value.toSet() }.filter { it.size > 1 }
+    }
 }
