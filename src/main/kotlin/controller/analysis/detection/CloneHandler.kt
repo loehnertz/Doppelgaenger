@@ -13,23 +13,23 @@ interface CloneHandler {
         val cloneNodes: List<Node> = retrieveAllCloneNodes(clones)
         return clones.filter { clone ->
             listOf(
-                isNotSubClone(clone.first.node, cloneNodes),
-                isNotSubClone(clone.second.node, cloneNodes)
+                isNotSubClone(clone.first.node!!, cloneNodes),
+                isNotSubClone(clone.second.node!!, cloneNodes)
             ).any { it }
         }
     }
 
     fun filterOutSubClonesFromCloneUnitCollection(cloneUnits: Collection<Unit>): List<Unit> {
         val cloneNodes: List<Node> = retrieveAllCloneUnitNodes(cloneUnits)
-        return cloneUnits.filter { isNotSubClone(it.node, cloneNodes) }.toList()
+        return cloneUnits.filter { isNotSubClone(it.node!!, cloneNodes) }.toList()
     }
 
     private fun retrieveAllCloneNodes(clones: Collection<Clone>): List<Node> {
-        return clones.flatMap { clone -> clone.toList().map { it.node } }.toList()
+        return clones.flatMap { clone -> clone.toList().map { it.node!! } }.toList()
     }
 
     private fun retrieveAllCloneUnitNodes(clonesUnits: Collection<Unit>): List<Node> {
-        return clonesUnits.map { it.node }.toList()
+        return clonesUnits.map { it.node!! }.toList()
     }
 
     private fun isNotSubClone(node: Node, cloneNodes: List<Node>): Boolean {
@@ -37,7 +37,7 @@ interface CloneHandler {
     }
 
     fun calculateSequenceSimilarity(firstSequence: List<Unit>, secondSequence: List<Unit>, massThreshold: Int): Double {
-        return firstSequence.sumByDouble { unit -> calculateSimilarity(unit.node, secondSequence[firstSequence.indexOf(unit)].node, massThreshold) }
+        return firstSequence.sumByDouble { unit -> calculateSimilarity(unit.node!!, secondSequence[firstSequence.indexOf(unit)].node!!, massThreshold) }
     }
 
     fun calculateSimilarity(firstNode: Node, secondNode: Node, massThreshold: Int): Double {
