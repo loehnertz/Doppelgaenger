@@ -4,6 +4,7 @@ import com.github.javaparser.ast.CompilationUnit
 import model.CloneMetrics
 import model.Unit
 import utility.Clone
+import utility.MultilineCommentRegex
 import java.io.File
 
 
@@ -59,6 +60,5 @@ class CloneMetricsCalculator(private val clones: List<Clone>, private val units:
     companion object Constants {
         private const val EXAMPLE_CLONE_AMOUNT = 10
         private const val SinglelineCommentToken = "//"
-        private val MultilineCommentRegex = Regex("/\\*[\\s\\S]*?\\*/", RegexOption.MULTILINE)
     }
 }

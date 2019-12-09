@@ -4,11 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.github.javaparser.Position
 import com.github.javaparser.Range
 import com.github.javaparser.ast.Node
-import utility.calculateMass
-import utility.leniantHashCode
-import utility.retrieveLocation
-import java.nio.file.Path
-import kotlin.reflect.KClass
+import utility.*
 
 
 data class Unit(
@@ -16,7 +12,7 @@ data class Unit(
     @JsonIgnore val nodeSequence: List<Node>? = null,
     val content: String,
     val range: Range,
-    val location: Path,
+    val identifier: String,
     val hash: Int,
     val mass: Int,
     var id: Int? = null
@@ -33,7 +29,7 @@ data class Unit(
 
         if (content != other.content) return false
         if (range != other.range) return false
-        if (location != other.location) return false
+        if (identifier != other.identifier) return false
 
         return true
     }
@@ -41,23 +37,23 @@ data class Unit(
     override fun hashCode(): Int {
         var result: Int = content.hashCode()
         result = 31 * result + range.hashCode()
-        result = 31 * result + location.hashCode()
+        result = 31 * result + identifier.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "Unit(id='$id', content='$content', range=$range, location=$location)"
+        return "Unit(id='$id', content='$content', range=$range, identifier=$identifier)"
     }
 
     companion object {
         private val DEFAULT_CLONETYPE = CloneType.ONE
 
-        fun fromNode(node: Node, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
+        fun fromNode(node: Node, basePackageIdentifier: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
             return Unit(
                 node = node,
-                content = node.tokenRange.get().toString(),
+                content = node.tokenRange.get().toString().filterOutComments(),
                 range = node.range.get(),
-                location = node.retrieveLocation(),
+                identifier = node.retrieveLocation().convertToPackageIdentifier(basePackageIdentifier),
                 hash = node.leniantHashCode(cloneType),
                 mass = node.calculateMass()
             )
@@ -68,7 +64,7 @@ data class Unit(
                     nodeSequence = nodeSequence,
                     content = nodeSequence.joinToString(separator = "") { it.tokenRange.get().toString() },
                     range = calculateNodeSequenceRange(nodeSequence),
-                    location = nodeSequence[0].retrieveLocation(),
+                    identifier = nodeSequence[0].retrieveLocation().convertToPackageIdentifier(basePackageIdentifier),
                     hash = nodeSequence.map { it.leniantHashCode(cloneType) }.hashCode(),
                     mass = nodeSequence.sumBy { it.calculateMass() } + nodeSequence.size
             )
