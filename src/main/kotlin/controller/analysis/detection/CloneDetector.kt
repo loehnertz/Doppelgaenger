@@ -1,5 +1,6 @@
 package controller.analysis.detection
 
+import com.github.javaparser.ast.Node
 import model.CloneType
 import model.Unit
 import utility.Clone
@@ -22,11 +23,11 @@ class CloneDetector(private val basePackageIdentifier: String, private val units
         return clones to cloneClasses
     }
 
-    fun filterOutClonesIncludedInSequenceClasses(cloneClasses: List<Set<Unit>>, sequenceCloneClasses: List<Set<List<Unit>>>): List<Set<Unit>> {
+    fun filterOutClonesIncludedInSequenceClasses(cloneClasses: List<Set<Unit>>, sequenceCloneClasses: List<Set<Unit>>): List<Set<Unit>> {
         return cloneClasses.filter { cloneClass -> !sequenceCloneClasses.any { sequenceCloneClass -> cloneClassIncludedInSequenceCloneClass(cloneClass, sequenceCloneClass) } }
     }
 
-    fun findSequenceCloneClasses(clones: List<Clone>): ArrayList<Set<List<Unit>>> {
+    fun findSequenceCloneClasses(clones: List<Clone>): List<Set<Unit>> {
         val sequences: List<List<Unit>> = clones.flatMap { it.toList() }.asSequence().distinct().map { it.node!!.getAllLineSiblings() }.distinct().filter { it.size > 1 }.map { it.map { node -> Unit.fromNode(node, basePackageIdentifier, cloneType) } }.toList()
         val cloneSequencesClasses: ArrayList<Set<List<Unit>>> = arrayListOf()
 
@@ -39,7 +40,8 @@ class CloneDetector(private val basePackageIdentifier: String, private val units
             buckets.forEach { filterBucket(it, cloneSequencesClasses) }
         }
 
-        return cloneSequencesClasses
+        val cloneSequenceClassesUnit: List<List<List<Node>>> = cloneSequencesClasses.map { seqClass -> seqClass.map { sequence -> sequence.map { unit -> unit.node!! } } }
+        return cloneSequenceClassesUnit.map { seqClass -> seqClass.map { Unit.fromNodeSequence(it, basePackageIdentifier, cloneType) }.toSet() }
     }
 
     private fun filterBucket(bucket: List<List<Unit>>, cloneSequencesClasses: ArrayList<Set<List<Unit>>>) {
@@ -61,8 +63,8 @@ class CloneDetector(private val basePackageIdentifier: String, private val units
         return cloneSequencesClasses.flatten().any { it.containsAll(sequence) }
     }
 
-    private fun cloneClassIncludedInSequenceCloneClass(cloneClass: Set<Unit>, sequenceCloneClass: Set<List<Unit>>): Boolean {
-        return cloneClass.all { clone -> sequenceCloneClass.any { sequenceClone -> sequenceClone.contains(clone) } }
+    private fun cloneClassIncludedInSequenceCloneClass(cloneClass: Set<Unit>, sequenceCloneClass: Set<Unit>): Boolean {
+        return cloneClass.all { clone -> sequenceCloneClass.any { sequenceClone -> sequenceClone.nodeSequence!!.contains(clone.node!!) } }
     }
 
     private fun calculateNodeMassAverage(): Int = units.map { it.mass }.average().toInt()

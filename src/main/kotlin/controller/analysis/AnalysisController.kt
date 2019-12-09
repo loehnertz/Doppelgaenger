@@ -20,16 +20,16 @@ class AnalysisController {
         val cloneDetector = CloneDetector(analysisRequest.basePackageIdentifier, units, analysisRequest.massThreshold, (100).toDouble(), analysisRequest.cloneType) // TODO: add similarity Threshold as a request parameter
         val (clones: List<Clone>, cloneClasses: List<Set<Unit>>) = cloneDetector.detectClones()
 
-        val sequenceCloneClasses: List<Set<List<Unit>>> = cloneDetector.findSequenceCloneClasses(clones).toList()
+        val sequenceCloneClasses: List<Set<Unit>> = cloneDetector.findSequenceCloneClasses(clones).toList()
         val cloneClassesFiltered: List<Set<Unit>> = cloneDetector.filterOutClonesIncludedInSequenceClasses(cloneClasses, sequenceCloneClasses)
 
         val metrics: CloneMetrics = CloneMetricsCalculator(clones, units).calculateMetrics() // TODO: Calculate metrics using sequenceCloneClasses and cloneClassesFiltered
-        return constructAnalysisResponse(cloneClassesFiltered, sequenceCloneClasses, metrics)
+        return constructAnalysisResponse(cloneClassesFiltered + sequenceCloneClasses, metrics)
             .also { println("The analysis of project '${analysisRequest.projectRoot}' took ${(System.currentTimeMillis() - startTime) / 1000} seconds.") }
     }
 
-    private fun constructAnalysisResponse(cloneClasses: List<Set<Unit>>, sequenceCloneClasses: List<Set<List<Unit>>>, metrics: CloneMetrics): AnalysisResponse {
-        return AnalysisResponse(cloneClasses = cloneClasses, sequenceCloneClasses = sequenceCloneClasses, metrics = metrics)
+    private fun constructAnalysisResponse(cloneClasses: List<Set<Unit>>, metrics: CloneMetrics): AnalysisResponse {
+        return AnalysisResponse(cloneClasses = cloneClasses, metrics = metrics)
     }
 
     fun writeResponseToFile(analysisRequest: AnalysisRequest, response: AnalysisResponse) {
