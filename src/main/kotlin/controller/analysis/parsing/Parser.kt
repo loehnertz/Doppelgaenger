@@ -8,8 +8,10 @@ import com.github.javaparser.symbolsolver.model.resolution.TypeSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver
+import kotlinx.coroutines.runBlocking
 import model.CloneType
 import model.Unit
+import utility.mapConcurrently
 import utility.toNullable
 import java.io.File
 import java.nio.file.Paths
@@ -17,17 +19,18 @@ import kotlin.reflect.KClass
 
 
 class Parser(private val projectRoot: File, private val cloneType: CloneType) {
-    fun parse(): List<Unit> {
-        val parser = constructJavaParser()
-        val nodeConversionFunction = constructNodeConversionFunction()
+    fun parse(): List<Unit> = runBlocking {
+        val parser: JavaParser = constructJavaParser()
+        val nodeConversionFunction: (Node) -> Unit = constructNodeConversionFunction()
 
-        return projectRoot
+        return@runBlocking projectRoot
             .walk()
             .filter { it.isFile }
-            .mapNotNull { parser.parse(it).result.toNullable() }
-            .map { Visitor.visit(it, nodeConversionFunction) }
-            .flatten()
+            .filter { it.extension == JavaFileExtension }
             .toList()
+            .mapNotNull { parser.parse(it).result.toNullable() }
+            .mapConcurrently { Visitor.visit(it, nodeConversionFunction) }
+            .flatten()
     }
 
     private fun filterOutNodeTypes(node: Node, vararg types: KClass<out Node>): Node {
@@ -53,5 +56,9 @@ class Parser(private val projectRoot: File, private val cloneType: CloneType) {
 
     private fun constructNodeConversionFunction(): (Node) -> Unit {
         return { node: Node -> Unit.fromNode(node = node, cloneType = cloneType) }
+    }
+
+    companion object Constants {
+        private const val JavaFileExtension = "java"
     }
 }
