@@ -1,6 +1,5 @@
 package controller.analysis.detection
 
-import com.github.javaparser.ast.Node
 import model.CloneType
 import model.Unit
 import utility.*
@@ -22,7 +21,7 @@ class CloneDetector(private val units: List<Unit>, massThreshold: Int?, private 
     }
 
     fun filterOutClonesIncludedInSequenceClasses(cloneClasses: List<Set<Unit>>, sequenceCloneClasses: List<Set<List<Unit>>>): List<Set<Unit>> {
-        return cloneClasses.filter { cloneClass -> sequenceCloneClasses.any{ sequenceCloneClass -> cloneClassIncludedInSequenceCloneClass(cloneClass, sequenceCloneClass) } }
+        return cloneClasses.filter { cloneClass -> !sequenceCloneClasses.any{ sequenceCloneClass -> cloneClassIncludedInSequenceCloneClass(cloneClass, sequenceCloneClass) } }
     }
 
     fun findSequenceCloneClasses(clones: List<Clone>): ArrayList<Set<List<Unit>>> {
@@ -33,8 +32,8 @@ class CloneDetector(private val units: List<Unit>, massThreshold: Int?, private 
         val maximumSequenceLength: Int = sequences.maxBy { it.size }!!.size
 
         for (k: Int in (minimumSequenceLengthThreshold..maximumSequenceLength).reversed()) {
-            val subsequencesOfLengthK = sequences.flatMap { it.windowed(k) }.filter { subsequence -> subsequence.any { it.mass > massThreshold } }
-            val buckets = subsequencesOfLengthK.groupBy { subsequence -> subsequence.map { it.hash }.hashCode() }.map { it.value }.filter { it.size > 1 }
+            val subsequencesOfLengthK: List<List<Unit>> = sequences.flatMap { it.windowed(k) }.filter { subsequence -> subsequence.any { it.mass > massThreshold } }
+            val buckets: List<List<List<Unit>>> = subsequencesOfLengthK.groupBy { subsequence -> subsequence.map { it.hash }.hashCode() }.map { it.value }.filter { it.size > 1 }
             buckets.forEach { filterBucket(it, cloneSequencesClasses) }
         }
 
@@ -47,7 +46,7 @@ class CloneDetector(private val units: List<Unit>, massThreshold: Int?, private 
                         sequenceIncludedInList(it.first, cloneSequencesClasses),
                         sequenceIncludedInList(it.second, cloneSequencesClasses)
                 ).any{ isIncluded -> !isIncluded } } // filter out subsequences of already found subsequences clones
-                .filter { calculateSequenceSimilarity(it.first, it.second, massThreshold) > similarityThreshold } // Similarity check
+                //.filter { calculateSequenceSimilarity(it.first, it.second, massThreshold) > similarityThreshold } // TODO: Study similarity check
                 .flatMap { listOf(it.first, it.second) } // flatten to obtain the clone group
                 .toSet()
 
