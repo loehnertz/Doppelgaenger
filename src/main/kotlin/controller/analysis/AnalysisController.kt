@@ -16,14 +16,20 @@ class AnalysisController {
     fun analyze(analysisRequest: AnalysisRequest): AnalysisResponse {
         val startTime: Long = System.currentTimeMillis()
         val units: List<Unit> = Parser(analysisRequest.projectRoot, analysisRequest.cloneType).parse()
-        val (clones: List<Clone>, cloneClasses: List<Set<Unit>>) = CloneDetector(units, analysisRequest.massThreshold).detectClones()
-        val metrics: CloneMetrics = CloneMetricsCalculator(clones, units).calculateMetrics()
-        return constructAnalysisResponse(clones, cloneClasses, metrics)
+
+        val cloneDetector = CloneDetector(units, analysisRequest.massThreshold, (100).toDouble(), analysisRequest.cloneType) // TODO: add similarity Threshold as a request parameter
+        val (clones: List<Clone>, cloneClasses: List<Set<Unit>>) = cloneDetector.detectClones()
+
+        val sequenceCloneClasses: List<Set<List<Unit>>> = cloneDetector.findSequenceCloneClasses(clones).toList()
+        val cloneClassesFiltered: List<Set<Unit>> = cloneDetector.filterOutClonesIncludedInSequenceClasses(cloneClasses, sequenceCloneClasses)
+
+        val metrics: CloneMetrics = CloneMetricsCalculator(clones, units).calculateMetrics() // TODO: Calculate metrics using sequenceCloneClasses and cloneClassesFiltered
+        return constructAnalysisResponse(cloneClassesFiltered, sequenceCloneClasses, metrics)
             .also { println("The analysis of project '${analysisRequest.projectRoot}' took ${(System.currentTimeMillis() - startTime) / 1000} seconds.") }
     }
 
-    private fun constructAnalysisResponse(clones: List<Clone>, cloneClasses: List<Set<Unit>>, metrics: CloneMetrics): AnalysisResponse {
-        return AnalysisResponse(clones = clones, cloneClasses = cloneClasses, metrics = metrics)
+    private fun constructAnalysisResponse(cloneClasses: List<Set<Unit>>, sequenceCloneClasses: List<Set<List<Unit>>>, metrics: CloneMetrics): AnalysisResponse {
+        return AnalysisResponse(cloneClasses = cloneClasses,sequenceCloneClasses =  sequenceCloneClasses, metrics = metrics)
     }
 
     fun writeResponseToFile(analysisRequest: AnalysisRequest, response: AnalysisResponse) {

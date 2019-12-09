@@ -36,9 +36,13 @@ interface CloneHandler {
         return !node.getAllParentNodes().any { parent -> cloneNodes.contains(parent) }
     }
 
-    fun calculateSimilarity(clone: Clone, massThreshold: Int): Double {
-        val firstCloneSubnodes: List<Node> = Visitor.visit(clone.first.node).filter { it.calculateMass() >= massThreshold }
-        val secondCloneSubnodes: List<Node> = Visitor.visit(clone.second.node).filter { it.calculateMass() >= massThreshold }
+    fun calculateSequenceSimilarity(firstSequence: List<Unit>, secondSequence: List<Unit>, massThreshold: Int): Double {
+        return firstSequence.sumByDouble { unit -> calculateSimilarity(unit.node, secondSequence[firstSequence.indexOf(unit)].node, massThreshold) }
+    }
+
+    fun calculateSimilarity(firstNode: Node, secondNode: Node, massThreshold: Int): Double {
+        val firstCloneSubnodes: List<Node> = Visitor.visit(firstNode).filter { it.calculateMass() >= massThreshold}
+        val secondCloneSubnodes: List<Node> = Visitor.visit(secondNode).filter { it.calculateMass() >= massThreshold}
         val sharedNodes = firstCloneSubnodes.intersect(secondCloneSubnodes)
 
         return computeSimilarity(sharedNodes.size, firstCloneSubnodes.filter { !sharedNodes.contains(it) }.size, secondCloneSubnodes.filter { !sharedNodes.contains(it) }.size)
