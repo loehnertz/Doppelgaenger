@@ -2,11 +2,8 @@ package controller.analysis.detection
 
 import com.github.javaparser.ast.CompilationUnit
 import model.CloneMetrics
-import model.JsonUnit
 import model.Unit
 import utility.Clone
-import utility.JsonClone
-import utility.map
 import java.io.File
 
 
@@ -39,18 +36,17 @@ class CloneMetricsCalculator(private val clones: List<Clone>, private val units:
         return ((clonedLinesOfCode / totalLinesOfCode) * 100).toInt()
     }
 
-    private fun findLargestClone(): Pair<JsonClone, Int> {
+    private fun findLargestClone(): Pair<Clone, Int> {
         val largestClone: Pair<Unit, Unit> = clones.maxBy { listOf(it.first.range.lineCount, it.second.range.lineCount).max()!! }!!
-        return Pair(largestClone.map { it.convertToJsonUnit() }, listOf(largestClone.first.range.lineCount, largestClone.second.range.lineCount).max()!!)
+        return Pair(largestClone, listOf(largestClone.first.range.lineCount, largestClone.second.range.lineCount).max()!!)
     }
 
-    private fun findLargestCloneClass(): List<JsonUnit> {
-        val largestCloneClass: List<Unit> = cloneClasses.values.maxBy { cloneClass -> cloneClass.maxBy { unit -> unit.content.length }!!.content.length }!!
-        return largestCloneClass.map { it.convertToJsonUnit() }
+    private fun findLargestCloneClass(): List<Unit> {
+        return cloneClasses.values.maxBy { cloneClass -> cloneClass.maxBy { unit -> unit.content.length }!!.content.length }!!
     }
 
-    private fun selectRandomExampleClones(): List<JsonClone> {
-        return clones.shuffled().take(EXAMPLE_CLONE_AMOUNT).map { Pair(it.first.convertToJsonUnit(), it.second.convertToJsonUnit()) }
+    private fun selectRandomExampleClones(): List<Clone> {
+        return clones.shuffled().take(EXAMPLE_CLONE_AMOUNT)
     }
 
     private fun countLinesOfCode(units: List<Unit>): Int {

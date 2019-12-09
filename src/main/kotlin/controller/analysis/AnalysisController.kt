@@ -23,7 +23,7 @@ class AnalysisController {
     }
 
     private fun constructAnalysisResponse(clones: List<Clone>, metrics: CloneMetrics): AnalysisResponse {
-        return AnalysisResponse(clones = clones.map { Pair(it.first.convertToJsonUnit(), it.second.convertToJsonUnit()) }, metrics = metrics)
+        return AnalysisResponse(clones = clones, metrics = metrics)
     }
 
     fun writeResponseToFile(analysisRequest: AnalysisRequest, response: AnalysisResponse) {
