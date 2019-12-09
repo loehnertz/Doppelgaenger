@@ -17,8 +17,13 @@ data class Unit(
     val location: Path,
     @JsonIgnore val type: KClass<out Node>,
     val hash: Int,
-    val mass: Int
+    val mass: Int,
+    var id: Int? = null
 ) {
+    init {
+        id = hashCode()
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -40,7 +45,7 @@ data class Unit(
     }
 
     override fun toString(): String {
-        return "Unit(content='$content', range=$range, location=$location)"
+        return "Unit(id='$id', content='$content', range=$range, location=$location)"
     }
 
     companion object {
