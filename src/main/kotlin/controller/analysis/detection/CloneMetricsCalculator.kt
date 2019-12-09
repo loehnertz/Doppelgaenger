@@ -8,7 +8,7 @@ import java.io.File
 
 
 class CloneMetricsCalculator(private val clones: List<Clone>, private val units: List<Unit>) : CloneHandler {
-    private val clonedUnits: List<Unit> = retrieveClonedUnits()
+    private val clonedUnits: List<Unit> = retrieveClonedUnits(clones)
     private val cloneClasses: Map<Int, List<Unit>> = retrieveCloneClasses(clonedUnits)
 
     fun calculateMetrics(): CloneMetrics {
@@ -20,14 +20,6 @@ class CloneMetricsCalculator(private val clones: List<Clone>, private val units:
             largestCloneClass = findLargestCloneClass(),
             exampleClones = selectRandomExampleClones()
         )
-    }
-
-    private fun retrieveClonedUnits(): List<Unit> {
-        return clones.flatMap { it.toList() }.toSet().let { filterOutSubClonesFromCloneUnitCollection(it) }
-    }
-
-    private fun retrieveCloneClasses(clonedUnits: List<Unit>): Map<Int, List<Unit>> {
-        return clonedUnits.groupBy { it.hash }
     }
 
     private fun calculatePercentageOfDuplicatedLines(): Int {
