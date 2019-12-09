@@ -6,5 +6,5 @@ Vue.config.productionTip = false;
 Vue.prototype.$backendHost = location.hostname + ':8888';
 
 new Vue({
-  render: h => h(App),
+    render: h => h(App),
 }).$mount('#app');
