@@ -25,7 +25,7 @@ class CloneDetector(private val units: List<Unit>, massThreshold: Int?, private 
     }
 
     fun findSequenceCloneClasses(clones: List<Clone>): ArrayList<Set<List<Unit>>> {
-        val sequences: List<List<Unit>> = clones.flatMap { it.toList() }.asSequence().distinct().map { it.node.getAllLineSiblings() }.distinct().filter { it.size > 1 }.map { it.map { node -> Unit.fromNode(node, cloneType) } }.toList()
+        val sequences: List<List<Unit>> = clones.flatMap { it.toList() }.asSequence().distinct().map { it.node!!.getAllLineSiblings() }.distinct().filter { it.size > 1 }.map { it.map { node -> Unit.fromNode(node, cloneType) } }.toList()
         val cloneSequencesClasses: ArrayList<Set<List<Unit>>> = arrayListOf()
 
         val minimumSequenceLengthThreshold = 2

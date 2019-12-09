@@ -1,6 +1,7 @@
 package model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.github.javaparser.Position
 import com.github.javaparser.Range
 import com.github.javaparser.ast.Node
 import utility.calculateMass
@@ -11,11 +12,11 @@ import kotlin.reflect.KClass
 
 
 data class Unit(
-    @JsonIgnore val node: Node,
+    @JsonIgnore val node: Node? = null,
+    @JsonIgnore val nodeSequence: List<Node>? = null,
     val content: String,
     val range: Range,
     val location: Path,
-    @JsonIgnore val type: KClass<out Node>,
     val hash: Int,
     val mass: Int,
     var id: Int? = null
@@ -57,10 +58,26 @@ data class Unit(
                 content = node.tokenRange.get().toString(),
                 range = node.range.get(),
                 location = node.retrieveLocation(),
-                type = node::class,
                 hash = node.leniantHashCode(cloneType),
                 mass = node.calculateMass()
             )
+        }
+
+        fun fromNodeSequence(nodeSequence: List<Node>, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
+            return Unit(
+                    nodeSequence = nodeSequence,
+                    content = nodeSequence.joinToString(separator = "") { it.tokenRange.get().toString() },
+                    range = calculateNodeSequenceRange(nodeSequence),
+                    location = nodeSequence[0].retrieveLocation(),
+                    hash = nodeSequence.map { it.leniantHashCode(cloneType) }.hashCode(),
+                    mass = nodeSequence.sumBy { it.calculateMass() } + nodeSequence.size
+            )
+        }
+
+        private fun calculateNodeSequenceRange(nodeSequence: List<Node>): Range {
+            val initialPosition = nodeSequence[0].range.get().begin
+            val finalPosition = nodeSequence[nodeSequence.size - 1].range.get().end
+            return Range(Position.pos(initialPosition.line, initialPosition.column), Position.pos(finalPosition.line, finalPosition.column))
         }
     }
 }
