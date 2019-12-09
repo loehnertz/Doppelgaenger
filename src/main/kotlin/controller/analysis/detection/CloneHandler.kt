@@ -36,8 +36,8 @@ interface CloneHandler {
         return !node.getAllParentNodes().any { parent -> cloneNodes.contains(parent) }
     }
 
-    fun calculateSequenceSimilarity(firstSequence: List<Node>, secondSequence: List<Node>, massThreshold: Int): Double {
-        return firstSequence.sumByDouble { node -> calculateSimilarity(node, secondSequence[firstSequence.indexOf(node)], massThreshold) }
+    fun calculateSequenceSimilarity(firstSequence: List<Unit>, secondSequence: List<Unit>, massThreshold: Int): Double {
+        return firstSequence.sumByDouble { unit -> calculateSimilarity(unit.node, secondSequence[firstSequence.indexOf(unit)].node, massThreshold) }
     }
 
     fun calculateSimilarity(firstNode: Node, secondNode: Node, massThreshold: Int): Double {
