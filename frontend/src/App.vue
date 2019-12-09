@@ -1,11 +1,16 @@
 <template>
     <div id="app">
-        <Graph id="graph" :graph-data="graphData"/>
+        <h1 class="title">Doppelgänger</h1>
+        <div id="content">
+            <Graph :graph-data="graphData" class="box" id="graph"/>
+            <Sidebar :metrics="cloneMetrics" class="box" id="sidebar"/>
+        </div>
     </div>
 </template>
 
 <script>
     import Graph from './components/Graph.vue'
+    import Sidebar from './components/Sidebar.vue'
 
     import axios from 'axios';
 
@@ -13,7 +18,8 @@
     export default {
         name: 'app',
         components: {
-            Graph
+            Graph,
+            Sidebar,
         },
         computed: {
             graphData: function () {
@@ -21,7 +27,7 @@
                 for (let cloneClass of this.cloneClasses) {
                     // Clone class nodes
                     const cloneClassUnit = cloneClass[0];
-                    const cloneClassUnitId = 'class:' + cloneClassUnit.id;
+                    const cloneClassUnitId = cloneClassUnit.hash;
 
                     const node = {
                         type: 'class',
@@ -39,6 +45,7 @@
                             type: 'unit',
                             id: unitId,
                             identifier: unit.identifier,
+                            range: unit.range,
                         };
                         data.nodes.push(node);
 
@@ -111,11 +118,32 @@
 </script>
 
 <style>
+    @import '~bulma/css/bulma.min.css';
+
     body {
+        font-family: 'Rubik', sans-serif;
         margin: 0;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+    }
+
+    #content {
+        height: calc(100vh - 100px);
+        display: flex;
+        flex-direction: row;
     }
 
     #graph {
-        height: 100vh;
+        flex-basis: 70%;
+        margin-bottom: 0 !important;
+        padding: 0 !important;
+    }
+
+    #sidebar {
+        flex-basis: 28.5%;
+        margin-left: 1.5%;
     }
 </style>

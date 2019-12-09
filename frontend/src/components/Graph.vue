@@ -1,9 +1,9 @@
 <template>
     <Network
-            ref="graph"
-            :nodes="graphNodes"
             :edges="graphEdges"
+            :nodes="graphNodes"
             :options="graphOptions"
+            ref="graph"
     >
     </Network>
 </template>
@@ -21,22 +21,26 @@
         },
         data() {
             return {
+                selectedNode: '',
                 graphNodeIds: new Set(),
                 graphNodes: [],
                 graphEdges: [],
                 graphOptions: {
                     nodes: {
+                        chosen: {
+                            node: (values, id) => {
+                                const selectedNode = this.findNodeById(id);
+                                if (selectedNode.type === 'unit') return;
+                                const connectedNodeIds = this.$refs["graph"].getConnectedNodes(id);
+                                const connectedNodes = connectedNodeIds.map((nodeId) => this.findNodeById(nodeId));
+                                this.$root.$emit('selected-node', {selectedNode, connectedNodes})
+                            }
+                        },
                         font: {
                             align: 'left',
                             size: 100,
                         },
                         margin: 100,
-                    },
-                    edges: {
-                        scaling: {
-                            customScalingFunction: this.getEdgeScalingFunction(),
-                        },
-                        selectionWidth: this.getSelectionWidthFunction(),
                     },
                     layout: {
                         randomSeed: RandomSeed,
@@ -58,10 +62,14 @@
                 if (graphData) this.rerenderGraph();
             },
         },
+        mounted() {
+            this.$root.$on('focus-on-node', (nodeId) => this.focusOnNode(nodeId));
+        },
         methods: {
             rerenderGraph() {
                 this.flushGraph();
                 this.constructGraph(this.graphData["nodes"], this.graphData["edges"]);
+                setTimeout(() => this.fitAnimated(), 1000);
             },
             flushGraph() {
                 this.graphNodeIds = new Set();
@@ -84,7 +92,7 @@
                             renderedNode = this.buildCloneClassNode(node.id, node.content, node.mass);
                             break;
                         case 'unit':
-                            renderedNode = this.buildUnitNode(node.id, node.identifier);
+                            renderedNode = this.buildUnitNode(node.id, node.identifier, node.range.lineCount);
                             break;
                         default:
                             console.error(`Unknown node type '${node["type"]}'`);
@@ -113,7 +121,7 @@
                     },
                 }
             },
-            buildUnitNode(id, identifier) {
+            buildUnitNode(id, identifier, lineCount) {
                 return {
                     id: id,
                     label: identifier,
@@ -124,6 +132,7 @@
                         background: 'whitesmoke',
                         border: 'firebrick',
                     },
+                    lineCount,
                 }
             },
             buildEdge(from, to) {
@@ -132,9 +141,27 @@
                     to: to,
                     color: {
                         color: 'green',
+                        highlight: 'lime',
                     },
                     width: 100,
                 }
+            },
+            focusOnNode(nodeId) {
+                const options = {
+                    scale: 0.15,
+                    animation: {
+                        duration: 2000,
+                        easingFunction: 'easeInOutQuad',
+                    }
+                };
+                this.$refs["graph"].focus(nodeId, options);
+            },
+            fitAnimated() {
+                const options = {
+                    duration: 2500,
+                    easingFunction: 'easeInOutQuad',
+                };
+                this.$refs["graph"].fit({animation: options});
             },
             findNodeById(nodeId) {
                 return this.graphNodes.find((node) => {
@@ -154,21 +181,6 @@
             convertWhitespaceCharactersToHtml(title) {
                 return title.replace(/\r/g, '').replace(/\t/g, '  ').replace(/ /g, '&nbsp').replace(/\n/g, '<br>');
             },
-            getEdgeScalingFunction() {
-                return function (min, max, total, value) {
-                    if (max === min) {
-                        return 0.5;
-                    } else {
-                        const scale = 1 / (max - min);
-                        return Math.max(0, (value - min) * scale);
-                    }
-                }
-            },
-            getSelectionWidthFunction() {
-                return function (width) {
-                    return width * 5;
-                }
-            }
         },
         props: {
             graphData: {
