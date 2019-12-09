@@ -59,7 +59,7 @@ data class Unit(
             )
         }
 
-        fun fromNodeSequence(nodeSequence: List<Node>, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
+        fun fromNodeSequence(nodeSequence: List<Node>, basePackageIdentifier: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
             return Unit(
                     nodeSequence = nodeSequence,
                     content = nodeSequence.joinToString(separator = "") { it.tokenRange.get().toString() },
