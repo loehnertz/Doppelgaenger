@@ -54,7 +54,7 @@ class CloneDetector(private val units: List<Unit>, massThreshold: Int?, private 
     }
 
     private fun sequenceIncludedInList(sequence: List<Unit>, cloneSequencesClasses: ArrayList<Set<List<Unit>>>): Boolean {
-        return cloneSequencesClasses.flatten().filter { it.size == sequence.size + 1 }.any { it.containsAll(sequence) }
+        return cloneSequencesClasses.flatten().any { it.containsAll(sequence) }
     }
 
     private fun cloneClassIncludedInSequenceCloneClass(cloneClass: Set<Unit>, sequenceCloneClass: Set<List<Unit>>): Boolean {
