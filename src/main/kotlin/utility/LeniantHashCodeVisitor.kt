@@ -271,7 +271,8 @@ class LeniantHashCodeVisitor private constructor(private var cloneType: CloneTyp
     }
 
     override fun visit(n: PrimitiveType?, arg: Void?): Int? {
-        return n!!.type.hashCode() * 31 + n.annotations.accept(this, arg)!! * 31 + if (n.comment.isPresent) n.comment.get().accept(this, arg)!! else 0
+        if (cloneType == CloneType.ONE) return n!!.type.hashCode() * 31 + n.annotations.accept(this, arg)!! * 31 + if (n.comment.isPresent) n.comment.get().accept(this, arg)!! else 0
+        return 31
     }
 
     override fun visit(n: ReturnStmt?, arg: Void?): Int? {
