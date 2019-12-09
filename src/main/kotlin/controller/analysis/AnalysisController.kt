@@ -15,9 +15,9 @@ import java.io.File
 class AnalysisController {
     fun analyze(analysisRequest: AnalysisRequest): AnalysisResponse {
         val startTime: Long = System.currentTimeMillis()
-        val units: List<Unit> = Parser(analysisRequest.projectRoot, analysisRequest.cloneType).parse()
+        val units: List<Unit> = Parser(analysisRequest.basePackageIdentifier, analysisRequest.projectRoot, analysisRequest.cloneType).parse()
 
-        val cloneDetector = CloneDetector(units, analysisRequest.massThreshold, (100).toDouble(), analysisRequest.cloneType) // TODO: add similarity Threshold as a request parameter
+        val cloneDetector = CloneDetector(analysisRequest.basePackageIdentifier, units, analysisRequest.massThreshold, (100).toDouble(), analysisRequest.cloneType) // TODO: add similarity Threshold as a request parameter
         val (clones: List<Clone>, cloneClasses: List<Set<Unit>>) = cloneDetector.detectClones()
 
         val sequenceCloneClasses: List<Set<List<Unit>>> = cloneDetector.findSequenceCloneClasses(clones).toList()
@@ -29,7 +29,7 @@ class AnalysisController {
     }
 
     private fun constructAnalysisResponse(cloneClasses: List<Set<Unit>>, sequenceCloneClasses: List<Set<List<Unit>>>, metrics: CloneMetrics): AnalysisResponse {
-        return AnalysisResponse(cloneClasses = cloneClasses,sequenceCloneClasses =  sequenceCloneClasses, metrics = metrics)
+        return AnalysisResponse(cloneClasses = cloneClasses, sequenceCloneClasses = sequenceCloneClasses, metrics = metrics)
     }
 
     fun writeResponseToFile(analysisRequest: AnalysisRequest, response: AnalysisResponse) {

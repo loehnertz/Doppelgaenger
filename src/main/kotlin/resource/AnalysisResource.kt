@@ -19,6 +19,7 @@ fun Route.analysis(controller: AnalysisController) {
     route("/analysis") {
         get("/") {
             val request = AnalysisRequest(
+                basePackageIdentifier = call.parameters["basePackageIdentifier"]!!.toString(),
                 projectRoot = File(call.parameters["projectRoot"]!!.toString()),
                 cloneType = getCloneTypeByName(call.parameters["cloneType"] ?: CloneType.ONE.toString()),
                 massThreshold = call.parameters["massThreshold"]?.toInt()

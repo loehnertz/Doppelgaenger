@@ -39,6 +39,10 @@ fun <T> Collection<T>.cartesianProduct(): List<Pair<T, T>> {
 
 fun String.filterOutComments(): String = this.replace(MultilineCommentRegex, "")
 
+fun Path.convertToPackageIdentifier(basePackageIdentifier: String): String {
+    return this.toFile().name.replace(Regex("[/\\\\]"), ".").substringAfterLast(basePackageIdentifier)
+}
+
 fun Node.retrieveLocation(): Path {
     return if (this.parentNode.isEmpty) {
         (this as CompilationUnit).storage.get().path

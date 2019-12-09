@@ -18,7 +18,7 @@ import java.nio.file.Paths
 import kotlin.reflect.KClass
 
 
-class Parser(private val projectRoot: File, private val cloneType: CloneType) {
+class Parser(private val basePackageIdentifier: String, private val projectRoot: File, private val cloneType: CloneType) {
     fun parse(): List<Unit> = runBlocking {
         val parser: JavaParser = constructJavaParser()
         val nodeConversionFunction: (Node) -> Unit = constructNodeConversionFunction()
@@ -55,7 +55,7 @@ class Parser(private val projectRoot: File, private val cloneType: CloneType) {
     }
 
     private fun constructNodeConversionFunction(): (Node) -> Unit {
-        return { node: Node -> Unit.fromNode(node = node, cloneType = cloneType) }
+        return { node: Node -> Unit.fromNode(node = node, basePackageIdentifier = basePackageIdentifier, cloneType = cloneType) }
     }
 
     companion object Constants {
