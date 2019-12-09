@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.github.javaparser.Range
 import com.github.javaparser.ast.Node
 import utility.calculateMass
+import utility.filterOutComments
 import utility.leniantHashCode
 import utility.retrieveLocation
 import java.nio.file.Path
@@ -54,7 +55,7 @@ data class Unit(
         fun fromNode(node: Node, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
             return Unit(
                 node = node,
-                content = node.tokenRange.get().toString(),
+                content = node.tokenRange.get().toString().filterOutComments(),
                 range = node.range.get(),
                 location = node.retrieveLocation(),
                 type = node::class,
