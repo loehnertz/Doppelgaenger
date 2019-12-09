@@ -15,7 +15,7 @@ class CloneDetector(private val units: List<Unit>, private val massThreshold: In
             .filter { it.size > 1 }
             .flatMap { it.cartesianProduct() }
             .let { filterOutSubClonesFromCloneCollection(it) }
-        val cloneClasses: List<Set<Unit>> = retrieveCloneClasses(retrieveClonedUnits(clones)).map { it.value.toSet() }.filter { it.size > 1 }
+        val cloneClasses: List<Set<Unit>> = retrieveCloneClasses(clones)
         return clones to cloneClasses
     }
 

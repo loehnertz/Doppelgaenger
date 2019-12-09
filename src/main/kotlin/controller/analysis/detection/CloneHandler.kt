@@ -52,7 +52,7 @@ interface CloneHandler {
         return clones.flatMap { it.toList() }.toSet().let { filterOutSubClonesFromCloneUnitCollection(it) }
     }
 
-    fun retrieveCloneClasses(clonedUnits: List<Unit>): Map<Int, List<Unit>> {
-        return clonedUnits.groupBy { it.hash }
+    fun retrieveCloneClasses(clones: List<Clone>): List<Set<Unit>> {
+        return retrieveClonedUnits(clones).groupBy { it.hash }.map { it.value.toSet() }.filter { it.size > 1 }
     }
 }

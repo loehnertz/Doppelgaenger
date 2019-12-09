@@ -9,7 +9,7 @@ import java.io.File
 
 class CloneMetricsCalculator(private val clones: List<Clone>, private val units: List<Unit>) : CloneHandler {
     private val clonedUnits: List<Unit> = retrieveClonedUnits(clones)
-    private val cloneClasses: Map<Int, List<Unit>> = retrieveCloneClasses(clonedUnits)
+    private val cloneClasses: List<Set<Unit>> = retrieveCloneClasses(clones)
 
     fun calculateMetrics(): CloneMetrics {
         return CloneMetrics(
@@ -33,8 +33,8 @@ class CloneMetricsCalculator(private val clones: List<Clone>, private val units:
         return Pair(largestClone, listOf(largestClone.first.range.lineCount, largestClone.second.range.lineCount).max()!!)
     }
 
-    private fun findLargestCloneClass(): List<Unit> {
-        return cloneClasses.values.maxBy { cloneClass -> cloneClass.maxBy { unit -> unit.content.length }!!.content.length }!!
+    private fun findLargestCloneClass(): Set<Unit> {
+        return cloneClasses.maxBy { cloneClass -> cloneClass.maxBy { unit -> unit.content.length }!!.content.length }!!
     }
 
     private fun selectRandomExampleClones(): List<Clone> {

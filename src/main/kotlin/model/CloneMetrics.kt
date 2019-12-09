@@ -8,6 +8,6 @@ data class CloneMetrics(
     val numberOfCloneClasses: Int,
     val percentageOfDuplicatedLines: Int,
     val largestClone: Pair<Clone, Int>,
-    val largestCloneClass: List<Unit>,
+    val largestCloneClass: Set<Unit>,
     val exampleClones: List<Clone>
 )
