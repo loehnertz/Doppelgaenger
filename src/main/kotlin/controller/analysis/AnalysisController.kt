@@ -24,12 +24,12 @@ class AnalysisController {
         val cloneClassesFiltered: List<Set<Unit>> = cloneDetector.filterOutClonesIncludedInSequenceClasses(cloneClasses, sequenceCloneClasses)
 
         val metrics: CloneMetrics = CloneMetricsCalculator(clones, units).calculateMetrics() // TODO: Calculate metrics using sequenceCloneClasses and cloneClassesFiltered
-        return constructAnalysisResponse(clones, cloneClasses, metrics)
+        return constructAnalysisResponse(cloneClassesFiltered, sequenceCloneClasses, metrics)
             .also { println("The analysis of project '${analysisRequest.projectRoot}' took ${(System.currentTimeMillis() - startTime) / 1000} seconds.") }
     }
 
-    private fun constructAnalysisResponse(clones: List<Clone>, cloneClasses: List<Set<Unit>>, metrics: CloneMetrics): AnalysisResponse {
-        return AnalysisResponse(clones = clones, cloneClasses = cloneClasses, metrics = metrics)
+    private fun constructAnalysisResponse(cloneClasses: List<Set<Unit>>, sequenceCloneClasses: List<Set<List<Unit>>>, metrics: CloneMetrics): AnalysisResponse {
+        return AnalysisResponse(cloneClasses = cloneClasses,sequenceCloneClasses =  sequenceCloneClasses, metrics = metrics)
     }
 
     fun writeResponseToFile(analysisRequest: AnalysisRequest, response: AnalysisResponse) {
