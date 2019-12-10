@@ -84,12 +84,22 @@ data class Unit(
         fun fromNodeSequence(nodeSequence: List<Node>, basePath: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
             return Unit(
                 nodeSequence = nodeSequence,
-                content = nodeSequence.joinToString(separator = "") { it.tokenRange.get().toString() },
+                content = calculateNodeSequenceContent(nodeSequence),
                 range = calculateNodeSequenceRange(nodeSequence),
-                identifier = nodeSequence[0].retrieveLocation().convertToPackageIdentifier(basePath),
+                identifier = nodeSequence.first().retrieveLocation().convertToPackageIdentifier(basePath),
                 hash = nodeSequence.map { it.leniantHashCode(cloneType) }.hashCode(),
                 mass = nodeSequence.sumBy { it.calculateMass() } + nodeSequence.size
             )
+        }
+
+        private fun calculateNodeSequenceContent(nodeSequence: List<Node>): String {
+            var result: String = nodeSequence[0].tokenRange.get().toString()
+            for(i: Int in (1 until nodeSequence.size)) {
+                result += if (nodeSequence[i - 1].range.get().end.line < nodeSequence[i].range.get().begin.line) "\n" else  " "
+                result += nodeSequence[i].tokenRange.get().toString()
+            }
+
+            return result
         }
 
         private fun calculateNodeSequenceRange(nodeSequence: List<Node>): Range { // TODO: Add lineCount
