@@ -12,6 +12,7 @@
     "bulma": "^0.8.0",
     "core-js": "^3.4.3",
     "vue": "^2.6.10",
+    "vue-spinner": "^1.0.3",
     "vue2vis": "0.0.16"
   },
   "devDependencies": {

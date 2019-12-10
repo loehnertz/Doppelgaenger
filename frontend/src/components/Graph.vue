@@ -63,7 +63,7 @@
             rerenderGraph() {
                 this.flushGraph();
                 this.constructGraph(this.graphData["nodes"], this.graphData["edges"]);
-                setTimeout(() => this.fitAnimated(), 1000);
+                setTimeout(() => this.fitAnimated(), 100);
             },
             flushGraph() {
                 this.graphNodeIds = new Set();

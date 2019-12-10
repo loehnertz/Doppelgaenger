@@ -1,5 +1,8 @@
 <template>
     <div id="app">
+        <div id="throbber" v-show="isLoading">
+            <Throbber :color="throbberColor" :is-loading="isLoading"/>
+        </div>
         <div class="header level">
             <div class="level-left">
                 <div class="level-item">
@@ -12,8 +15,8 @@
                         <div class="control">
                             <input
                                     class="input"
-                                    type="text"
                                     placeholder="Base Package Identifier"
+                                    type="text"
                                     v-model="basePackageIdentifier"
                             >
                         </div>
@@ -23,10 +26,10 @@
                     <div class="field">
                         <div class="control">
                             <input
-                                    id="project-root"
                                     class="input"
-                                    type="text"
+                                    id="project-root"
                                     placeholder="Project Root"
+                                    type="text"
                                     v-model="projectRoot"
                             >
                         </div>
@@ -37,7 +40,7 @@
                         <div class="control">
                             <div class="select">
                                 <select v-model="cloneType">
-                                    <option value="" disabled>Clone Type</option>
+                                    <option disabled value="">Clone Type</option>
                                     <option value="ONE">One</option>
                                     <option value="TWO">Two</option>
                                     <option value="THREE">Three</option>
@@ -50,11 +53,11 @@
                     <div class="field">
                         <div class="control">
                             <input
-                                    id="mass-threshold"
                                     class="input"
-                                    type="number"
-                                    step="1"
+                                    id="mass-threshold"
                                     placeholder="Mass Threshold"
+                                    step="1"
+                                    type="number"
                                     v-model="massThreshold"
                             >
                         </div>
@@ -62,7 +65,7 @@
                 </div>
                 <div class="level-item">
                     <div class="control">
-                        <button class="button is-info" @click="fetchAnalysis">Analyze</button>
+                        <button @click="fetchAnalysis" class="button is-info">Analyze</button>
                     </div>
                 </div>
             </div>
@@ -77,6 +80,7 @@
 <script>
     import Graph from './components/Graph.vue'
     import Sidebar from './components/Sidebar.vue'
+    import Throbber from './components/Throbber.vue'
 
     import axios from 'axios';
 
@@ -86,6 +90,7 @@
         components: {
             Graph,
             Sidebar,
+            Throbber,
         },
         computed: {
             graphData: function () {
@@ -166,10 +171,14 @@
                 cloneClasses: [],
                 cloneMetrics: {},
                 queryParameters: new URLSearchParams(window.location.search),
+                throbberColor: '#3298dc',
+                isLoading: false,
             }
         },
         methods: {
             fetchAnalysis() {
+                this.isLoading = true;
+
                 const parameters = {
                     'basePackageIdentifier': this.basePackageIdentifier,
                     'projectRoot': this.projectRoot,
@@ -187,6 +196,7 @@
                     .then((response) => {
                         this.cloneClasses = response.data["cloneClasses"];
                         this.cloneMetrics = response.data["metrics"];
+                        this.isLoading = false;
                     })
                     .catch((error) => {
                         console.error(error.response);
@@ -213,7 +223,7 @@
     }
 
     #content {
-        height: calc(100vh - 100px);
+        height: calc(100vh - 120px);
         display: flex;
         flex-direction: row;
     }
@@ -227,6 +237,20 @@
     #sidebar {
         flex-basis: 28.5%;
         margin-left: 1.5%;
+    }
+
+    #throbber {
+        position: fixed;
+        height: 100vh;
+        width: 100vw;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 99;
+        background-color: rgba(0, 0, 0, 0.25);
+        padding: 0;
+        margin: 0;
     }
 
     #mass-threshold {
