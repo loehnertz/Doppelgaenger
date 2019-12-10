@@ -84,7 +84,7 @@
             </div>
         </div>
         <div id="content">
-            <Graph :graph-data="graphData" class="box" id="graph"/>
+            <Graph :graph-data="graphData" @fitted="graphFittedHandler" class="box" id="graph"/>
             <Sidebar :metrics="cloneMetrics" class="box" id="sidebar"/>
         </div>
     </div>
@@ -142,65 +142,23 @@
                 }
                 return data;
             },
-            projectType: {
-                get: function () {
-                    return this.retrieveQueryParameter('projectType');
-                },
-                set: function (newValue) {
-                    if (!newValue) return;
-                    this.queryParameters.set('projectType', newValue);
-                    this.updateUrlQueryParameters();
-                },
-            },
-            basePath: {
-                get: function () {
-                    return this.retrieveQueryParameter('basePath');
-                },
-                set: function (newValue) {
-                    if (!newValue) return;
-                    this.queryParameters.set('basePath', newValue);
-                    this.updateUrlQueryParameters();
-                },
-            },
-            projectRoot: {
-                get: function () {
-                    return this.retrieveQueryParameter('projectRoot');
-                },
-                set: function (newValue) {
-                    if (!newValue) return;
-                    this.queryParameters.set('projectRoot', newValue);
-                    this.updateUrlQueryParameters();
-                },
-            },
-            cloneType: {
-                get: function () {
-                    return this.retrieveQueryParameter('cloneType');
-                },
-                set: function (newValue) {
-                    if (!newValue) return;
-                    this.queryParameters.set('cloneType', newValue);
-                    this.updateUrlQueryParameters();
-                },
-            },
-            massThreshold: {
-                get: function () {
-                    return this.retrieveQueryParameter('massThreshold');
-                },
-                set: function (newValue) {
-                    if (!newValue) return;
-                    this.queryParameters.set('massThreshold', newValue);
-                    this.updateUrlQueryParameters();
-                },
-            },
         },
         data() {
             return {
+                isLoading: false,
+                throbberColor: '#3298DC',
+                queryParameters: new URLSearchParams(window.location.search),
+                projectType: 'LOCAL',
+                projectRoot: '',
+                basePath: '',
+                cloneType: 'ONE',
+                massThreshold: '25',
                 cloneClasses: [],
                 cloneMetrics: {},
-                queryParameters: new URLSearchParams(window.location.search),
-                throbberColor: '#3298DC',
-                isLoading: false,
             }
+        },
+        mounted() {
+            this.readParametersFromUrl();
         },
         methods: {
             fetchAnalysis() {
@@ -214,6 +172,8 @@
                     'massThreshold': this.massThreshold,
                 };
 
+                this.updateUrlQueryParameters();
+
                 axios
                     .get(
                         `http://${this.$backendHost}/analysis`,
@@ -224,22 +184,38 @@
                     .then((response) => {
                         this.cloneClasses = response.data["cloneClasses"];
                         this.cloneMetrics = response.data["metrics"];
-                        this.isLoading = false;
                     })
                     .catch((error) => {
                         console.error(error.response);
+                        this.isLoading = false;
                     });
-
-                this.updateUrlQueryParameters();
             },
-            retrieveQueryParameter(key) {
+            graphFittedHandler() {
+                this.isLoading = false;
+            },
+            readParametersFromUrl() {
+                this.projectType = this.retrieveQueryParameter('projectType', this.projectType);
+                this.projectRoot = this.retrieveQueryParameter('projectRoot', this.projectRoot);
+                this.basePath = this.retrieveQueryParameter('basePath', this.basePath);
+                this.cloneType = this.retrieveQueryParameter('cloneType', this.cloneType);
+                this.massThreshold = this.retrieveQueryParameter('massThreshold', this.massThreshold);
+            },
+            updateParametersForUrl() {
+                this.queryParameters.set('projectType', this.projectType);
+                this.queryParameters.set('projectRoot', this.projectRoot);
+                this.queryParameters.set('basePath', this.basePath);
+                this.queryParameters.set('cloneType', this.cloneType);
+                this.queryParameters.set('massThreshold', this.massThreshold);
+            },
+            retrieveQueryParameter(key, fallback) {
                 if (this.queryParameters.has(key)) {
                     return this.queryParameters.get(key);
                 } else {
-                    return null;
+                    return fallback;
                 }
             },
             updateUrlQueryParameters() {
+                this.updateParametersForUrl();
                 const newUrl = decodeURIComponent(`${window.location.origin}${window.location.pathname}?${this.queryParameters.toString()}`);
                 history.pushState({}, document.title, newUrl);
             },
