@@ -85,9 +85,15 @@
                 </div>
             </div>
         </div>
-        <div id="content">
+        <div id="content" v-show="cloneClasses.length > 0 && Object.keys(cloneMetrics).length > 0">
             <Graph :graph-data="graphData" @fitted="graphFittedHandler" class="box" id="graph"/>
-            <Sidebar :metrics="cloneMetrics" :unitNodes="unitNodes" class="box" id="sidebar"/>
+            <Sidebar
+                    :cloneClasses="cloneClassNodeIds"
+                    :metrics="cloneMetrics"
+                    :unitNodes="unitNodes"
+                    class="box"
+                    id="sidebar"
+            />
         </div>
     </div>
 </template>
@@ -143,6 +149,9 @@
                     }
                 }
                 return data;
+            },
+            cloneClassNodeIds() {
+                return this.cloneClasses.map((cloneClass) => cloneClass[0].hash);
             },
             unitNodes: function () {
                 return this.graphData.nodes.filter((node) => node.type === 'unit');
