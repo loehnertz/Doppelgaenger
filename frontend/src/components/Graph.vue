@@ -63,7 +63,7 @@
             rerenderGraph() {
                 this.flushGraph();
                 this.constructGraph(this.graphData["nodes"], this.graphData["edges"]);
-                setTimeout(() => this.fitAnimated(), 100);
+                setTimeout(() => this.fitAnimated(), 2500);
             },
             flushGraph() {
                 this.graphNodeIds = new Set();
@@ -161,10 +161,14 @@
             },
             fitAnimated() {
                 const options = {
-                    duration: 2500,
-                    easingFunction: 'easeInOutQuad',
+                    animation: {
+                        duration: 2500,
+                        easingFunction: 'easeInOutQuad',
+                    },
+                    nodes: Array.from(this.graphNodeIds),
                 };
-                this.$refs["graph"].fit({animation: options});
+                this.$refs["graph"].fit(options);
+                this.$emit('fitted');
             },
             findNodeById(nodeId) {
                 return this.graphNodes.find((node) => {
@@ -174,16 +178,6 @@
             findEdgeById(edgeId) {
                 return this.graphEdges.find((edge) => {
                     return edge.id === edgeId;
-                });
-            },
-            findEdgeByFromTo(from, to) {
-                return this.graphEdges.find((edge) => {
-                    return edge.from === from && edge.to === to;
-                });
-            },
-            findEdgeIndexByFromTo(from, to) {
-                return this.graphEdges.findIndex((edge) => {
-                    return edge.from === from && edge.to === to;
                 });
             },
             convertWhitespaceCharactersToHtml(title) {

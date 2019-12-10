@@ -84,7 +84,7 @@
             </div>
         </div>
         <div id="content">
-            <Graph :graph-data="graphData" class="box" id="graph"/>
+            <Graph :graph-data="graphData" @fitted="graphFittedHandler" class="box" id="graph"/>
             <Sidebar :metrics="cloneMetrics" class="box" id="sidebar"/>
         </div>
     </div>
@@ -172,6 +172,8 @@
                     'massThreshold': this.massThreshold,
                 };
 
+                this.updateUrlQueryParameters();
+
                 axios
                     .get(
                         `http://${this.$backendHost}/analysis`,
@@ -182,13 +184,14 @@
                     .then((response) => {
                         this.cloneClasses = response.data["cloneClasses"];
                         this.cloneMetrics = response.data["metrics"];
-                        this.isLoading = false;
                     })
                     .catch((error) => {
                         console.error(error.response);
+                        this.isLoading = false;
                     });
-
-                this.updateUrlQueryParameters();
+            },
+            graphFittedHandler() {
+                this.isLoading = false;
             },
             readParametersFromUrl() {
                 this.projectType = this.retrieveQueryParameter('projectType', this.projectType);
