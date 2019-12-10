@@ -1,6 +1,72 @@
 <template>
     <div id="app">
-        <h1 class="title is-1">Doppelgänger</h1>
+        <div class="header level">
+            <div class="level-left">
+                <div class="level-item">
+                    <h1 class="title is-1">Doppelgänger</h1>
+                </div>
+            </div>
+            <div class="level-right input-elements">
+                <div class="level-item">
+                    <div class="field">
+                        <div class="control">
+                            <input
+                                    class="input"
+                                    type="text"
+                                    placeholder="Base Package Identifier"
+                                    v-model="basePackageIdentifier"
+                            >
+                        </div>
+                    </div>
+                </div>
+                <div class="level-item">
+                    <div class="field">
+                        <div class="control">
+                            <input
+                                    id="project-root"
+                                    class="input"
+                                    type="text"
+                                    placeholder="Project Root"
+                                    v-model="projectRoot"
+                            >
+                        </div>
+                    </div>
+                </div>
+                <div class="level-item">
+                    <div class="field">
+                        <div class="control">
+                            <div class="select">
+                                <select v-model="cloneType">
+                                    <option value="" disabled>Clone Type</option>
+                                    <option value="ONE">One</option>
+                                    <option value="TWO">Two</option>
+                                    <option value="THREE">Three</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="level-item">
+                    <div class="field">
+                        <div class="control">
+                            <input
+                                    id="mass-threshold"
+                                    class="input"
+                                    type="number"
+                                    step="1"
+                                    placeholder="Mass Threshold"
+                                    v-model="massThreshold"
+                            >
+                        </div>
+                    </div>
+                </div>
+                <div class="level-item">
+                    <div class="control">
+                        <button class="button is-info" @click="fetchAnalysis">Analyze</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="content">
             <Graph :graph-data="graphData" class="box" id="graph"/>
             <Sidebar :metrics="cloneMetrics" class="box" id="sidebar"/>
@@ -58,29 +124,49 @@
                 }
                 return data;
             },
-            basePackageIdentifier: function () {
-                return this.retrieveQueryParameter('basePackageIdentifier');
+            basePackageIdentifier: {
+                get: function () {
+                    return this.retrieveQueryParameter('basePackageIdentifier');
+                },
+                set: function (newValue) {
+                    if (!newValue) return;
+                    this.queryParameters.set('basePackageIdentifier', newValue);
+                },
             },
-            projectRoot: function () {
-                return this.retrieveQueryParameter('projectRoot');
+            projectRoot: {
+                get: function () {
+                    return this.retrieveQueryParameter('projectRoot');
+                },
+                set: function (newValue) {
+                    if (!newValue) return;
+                    this.queryParameters.set('projectRoot', newValue);
+                },
             },
-            cloneType: function () {
-                return this.retrieveQueryParameter('cloneType');
+            cloneType: {
+                get: function () {
+                    return this.retrieveQueryParameter('cloneType');
+                },
+                set: function (newValue) {
+                    if (!newValue) return;
+                    this.queryParameters.set('cloneType', newValue);
+                },
             },
-            massThreshold: function () {
-                return this.retrieveQueryParameter('massThreshold');
+            massThreshold: {
+                get: function () {
+                    return this.retrieveQueryParameter('massThreshold');
+                },
+                set: function (newValue) {
+                    if (!newValue) return;
+                    this.queryParameters.set('massThreshold', newValue);
+                },
             },
         },
         data() {
             return {
                 cloneClasses: [],
                 cloneMetrics: {},
-                queryParameters: null,
+                queryParameters: new URLSearchParams(window.location.search),
             }
-        },
-        mounted() {
-            this.queryParameters = new URLSearchParams(window.location.search);
-            this.fetchAnalysis();
         },
         methods: {
             fetchAnalysis() {
@@ -126,10 +212,6 @@
         padding: 20px;
     }
 
-    h1 {
-        text-align: center;
-    }
-
     #content {
         height: calc(100vh - 100px);
         display: flex;
@@ -145,5 +227,13 @@
     #sidebar {
         flex-basis: 28.5%;
         margin-left: 1.5%;
+    }
+
+    #mass-threshold {
+        width: 4em;
+    }
+
+    #project-root {
+        width: 32em;
     }
 </style>
