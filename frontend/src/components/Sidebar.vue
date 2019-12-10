@@ -29,7 +29,7 @@
                 </div>
                 <p v-if="selectedNode.value">Mass: {{ selectedNode.value }}</p>
                 <br>
-                <p class="subtitle is-5">Affected Units:</p>
+                <p class="subtitle is-5">Affected Units</p>
                 <div class="list scrollable-condensed">
                     <a
                             :key="connectedEdge.id"
@@ -100,19 +100,13 @@
                 this.focusOnNode(this.selectedUnitNode);
             },
             // Adapted from: https://stackoverflow.com/a/13627586
-            determineOrdinalSuffix(number) {
-                let j = number % 10;
-                let k = number % 100;
-                if (j === 1 && k !== 11) {
-                    return number + "st";
-                }
-                if (j === 2 && k !== 12) {
-                    return number + "nd";
-                }
-                if (j === 3 && k !== 13) {
-                    return number + "rd";
-                }
-                return number + "th";
+            determineOrdinalSuffix(i) {
+                let j = i % 10;
+                let k = i % 100;
+                if (j === 1 && k !== 11) return i + "st";
+                if (j === 2 && k !== 12) return i + "nd";
+                if (j === 3 && k !== 13) return i + "rd";
+                return i + "th";
             },
         },
         props: {
@@ -139,7 +133,7 @@
     }
 
     .scrollable-condensed {
-        max-height: 15vh;
+        max-height: 12vh;
         overflow-y: scroll;
     }
 </style>

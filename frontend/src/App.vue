@@ -58,7 +58,6 @@
                                     <option disabled value="">Clone Type</option>
                                     <option value="ONE">One</option>
                                     <option value="TWO">Two</option>
-                                    <option value="THREE">Three</option>
                                 </select>
                             </div>
                         </div>
@@ -95,15 +94,22 @@
                     id="sidebar"
             />
         </div>
+        <div class="box" id="readme">
+            <p class="title is-3">README</p>
+            <br>
+            <vue-markdown :source="readMeMarkdown"/>
+        </div>
     </div>
 </template>
 
 <script>
+    import axios from 'axios';
+
+    import VueMarkdown from 'vue-markdown'
+
     import Graph from './components/Graph.vue'
     import Sidebar from './components/Sidebar.vue'
     import Throbber from './components/Throbber.vue'
-
-    import axios from 'axios';
 
 
     export default {
@@ -112,6 +118,7 @@
             Graph,
             Sidebar,
             Throbber,
+            VueMarkdown,
         },
         computed: {
             graphData: function () {
@@ -161,6 +168,7 @@
             return {
                 isLoading: false,
                 throbberColor: '#3298DC',
+                readMeMarkdown: this.fetchReadMeMarkdown(),
                 queryParameters: new URLSearchParams(window.location.search),
                 projectType: 'LOCAL',
                 projectRoot: '',
@@ -202,6 +210,16 @@
                     .catch((error) => {
                         console.error(error.response);
                         this.isLoading = false;
+                    });
+            },
+            fetchReadMeMarkdown() {
+                axios
+                    .get('https://raw.githubusercontent.com/loehnertz/doppelgaenger/master/README.md')
+                    .then((response) => {
+                        this.readMeMarkdown = response.data;
+                    })
+                    .catch((error) => {
+                        console.error(error.response);
                     });
             },
             graphFittedHandler() {
@@ -266,6 +284,10 @@
         height: calc(100vh - 120px);
         display: flex;
         flex-direction: row;
+    }
+
+    #readme {
+        margin-top: 2em;
     }
 
     #graph {
