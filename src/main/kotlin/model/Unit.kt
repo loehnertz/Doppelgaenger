@@ -10,6 +10,7 @@ import utility.*
 data class Unit(
     @JsonIgnore val node: Node? = null,
     @JsonIgnore val nodeSequence: List<Node>? = null,
+    @JsonIgnore val contentRaw: String,
     val content: String,
     val range: Range,
     val identifier: String,
@@ -74,6 +75,7 @@ data class Unit(
         fun fromNode(node: Node, basePath: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
             return Unit(
                 node = node,
+                contentRaw = node.tokenRange.get().toString(),
                 content = node.tokenRange.get().toString().filterOutComments(),
                 range = node.range.get(),
                 identifier = node.retrieveLocation().convertToPackageIdentifier(basePath),
@@ -85,7 +87,8 @@ data class Unit(
         fun fromNodeSequence(nodeSequence: List<Node>, basePath: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
             return Unit(
                 nodeSequence = nodeSequence,
-                content = calculateNodeSequenceContent(nodeSequence),
+                contentRaw = calculateNodeSequenceContent(nodeSequence),
+                content = calculateNodeSequenceContent(nodeSequence).filterOutComments(),
                 range = calculateNodeSequenceRange(nodeSequence),
                 identifier = nodeSequence.first().retrieveLocation().convertToPackageIdentifier(basePath),
                 hash = nodeSequence.map { it.leniantHashCode(cloneType) }.hashCode(),
