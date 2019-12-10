@@ -46,16 +46,16 @@ data class Unit(
     }
 
     fun contains(clone: Unit): Boolean = when {
-        this == clone -> false
+        this == clone      -> false
         clone.node != null -> containsNode(clone.node) // Check if current Unit contains single node
-        else -> containsNodeSequence(clone.nodeSequence!!) // Check if current Unit contains sequence node
+        else               -> containsNodeSequence(clone.nodeSequence!!) // Check if current Unit contains sequence node
     }
 
     private fun containsNodeSequence(findNodeSequence: List<Node>): Boolean {
         return if (node != null) { // Current unit is a single node
             findNodeSequence.all { node.isAncestorOf(it) }
         } else { // Current unit is a node sequence
-            findNodeSequence.all { findNode -> nodeSequence!!.any { it == findNode || it.isAncestorOf(findNode) }}
+            findNodeSequence.all { findNode -> nodeSequence!!.any { it == findNode || it.isAncestorOf(findNode) } }
         }
     }
 
@@ -70,25 +70,25 @@ data class Unit(
     companion object {
         private val DEFAULT_CLONETYPE = CloneType.ONE
 
-        fun fromNode(node: Node, basePackageIdentifier: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
+        fun fromNode(node: Node, basePath: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
             return Unit(
                 node = node,
                 content = node.tokenRange.get().toString().filterOutComments(),
                 range = node.range.get(),
-                identifier = node.retrieveLocation().convertToPackageIdentifier(basePackageIdentifier),
+                identifier = node.retrieveLocation().convertToPackageIdentifier(basePath),
                 hash = node.leniantHashCode(cloneType),
                 mass = node.calculateMass()
             )
         }
 
-        fun fromNodeSequence(nodeSequence: List<Node>, basePackageIdentifier: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
+        fun fromNodeSequence(nodeSequence: List<Node>, basePath: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
             return Unit(
-                    nodeSequence = nodeSequence,
-                    content = nodeSequence.joinToString(separator = "") { it.tokenRange.get().toString() },
-                    range = calculateNodeSequenceRange(nodeSequence),
-                    identifier = nodeSequence[0].retrieveLocation().convertToPackageIdentifier(basePackageIdentifier),
-                    hash = nodeSequence.map { it.leniantHashCode(cloneType) }.hashCode(),
-                    mass = nodeSequence.sumBy { it.calculateMass() } + nodeSequence.size
+                nodeSequence = nodeSequence,
+                content = nodeSequence.joinToString(separator = "") { it.tokenRange.get().toString() },
+                range = calculateNodeSequenceRange(nodeSequence),
+                identifier = nodeSequence[0].retrieveLocation().convertToPackageIdentifier(basePath),
+                hash = nodeSequence.map { it.leniantHashCode(cloneType) }.hashCode(),
+                mass = nodeSequence.sumBy { it.calculateMass() } + nodeSequence.size
             )
         }
 
