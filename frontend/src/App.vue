@@ -86,7 +86,7 @@
         </div>
         <div id="content">
             <Graph :graph-data="graphData" @fitted="graphFittedHandler" class="box" id="graph"/>
-            <Sidebar :metrics="cloneMetrics" class="box" id="sidebar"/>
+            <Sidebar :metrics="cloneMetrics" :unitNodes="unitNodes" class="box" id="sidebar"/>
         </div>
     </div>
 </template>
@@ -143,6 +143,9 @@
                 }
                 return data;
             },
+            unitNodes: function () {
+                return this.graphData.nodes.filter((node) => node.type === 'unit');
+            },
         },
         data() {
             return {
@@ -185,7 +188,6 @@
                     .then((response) => {
                         this.cloneClasses = response.data["cloneClasses"];
                         this.cloneMetrics = response.data["metrics"];
-                        this.isLoading = false;
                     })
                     .catch((error) => {
                         console.error(error.response);
@@ -227,6 +229,7 @@
 
 <style>
     @import '~bulma/css/bulma.min.css';
+    @import '~vue-search-select/dist/VueSearchSelect.css';
 
     body {
         font-family: 'Rubik', sans-serif;

@@ -1,15 +1,19 @@
 <template>
     <div class="sidebar">
-        <h1 class="title is-3">Metrics</h1>
-        <hr>
         <div v-show="Object.keys(metrics).length > 0">
             <p>Number of Clones: {{ metrics["numberOfClones"] }}</p>
             <p>Number of Clone Classes: {{ metrics["numberOfCloneClasses"] }}</p>
             <p>Percentage of Duplicated SLOC: {{ metrics["percentageOfDuplicatedLines"] }}%</p>
             <hr>
             <button @click="focusOnNode(retrieveLargestCloneClassNodeId())" class="button is-info">
-                Focus on Largest Clone Class
+                Largest Clone Class
             </button>
+            <hr>
+            <basic-select
+                    :options="searchOptions"
+                    @select="selectedUnitNodeHandler"
+                    placeholder="Search"
+            />
             <hr>
             <div v-if="selectedNode && connectedEdges">
                 <h2 class="subtitle is-4">Clone Class</h2>
@@ -34,12 +38,25 @@
 </template>
 
 <script>
+    import {BasicSelect} from 'vue-search-select'
+
+
     export default {
         name: 'Sidebar',
+        components: {
+            BasicSelect,
+        },
+        computed: {
+            searchOptions: function () {
+                const unitNodeIds = this.unitNodes.map((unitNode) => (unitNode.id)).sort();
+                return [...new Set(unitNodeIds)].map((unitNodeId) => ({value: unitNodeId, text: unitNodeId}));
+            },
+        },
         data() {
             return {
-                selectedNode: null,
-                connectedEdges: null,
+                selectedNode: '',
+                connectedEdges: '',
+                selectedUnitNode: '',
             }
         },
         mounted() {
@@ -51,6 +68,7 @@
         methods: {
             focusOnNode(nodeId) {
                 this.$root.$emit('focus-on-node', nodeId);
+                this.selectedUnitNode = nodeId;
             },
             retrieveLargestCloneClassNodeId() {
                 return this.metrics["largestCloneClass"][0]["hash"];
@@ -58,10 +76,17 @@
             renderRange(range) {
                 return `${range["begin"]["line"]}:${range["begin"]["column"]} – ${range["end"]["line"]}:${range["end"]["column"]}`;
             },
+            selectedUnitNodeHandler(unitNode) {
+                this.selectedUnitNode = unitNode.value;
+                this.focusOnNode(this.selectedUnitNode);
+            },
         },
         props: {
             metrics: {
                 type: Object,
+            },
+            unitNodes: {
+                type: Array,
             },
         },
     }

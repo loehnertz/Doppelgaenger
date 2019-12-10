@@ -168,6 +168,7 @@
                     }
                 };
                 this.$refs["graph"].focus(nodeId, options);
+                this.$refs["graph"].selectNodes([nodeId], null);
             },
             fitAnimated() {
                 const options = {
