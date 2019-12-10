@@ -46,9 +46,10 @@ data class Unit(
     }
 
     fun contains(clone: Unit): Boolean = when {
-        this == clone -> false
-        clone.node != null -> containsNode(clone.node) // Check if current Unit contains single node
-        else -> containsNodeSequence(clone.nodeSequence!!) // Check if current Unit contains sequence node
+        this == clone                       -> false
+        this.identifier != clone.identifier -> false
+        this.range.contains(clone.range)    -> true
+        else                                -> false
     }
 
     private fun containsNodeSequence(findNodeSequence: List<Node>): Boolean {
@@ -83,19 +84,19 @@ data class Unit(
 
         fun fromNodeSequence(nodeSequence: List<Node>, basePackageIdentifier: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
             return Unit(
-                    nodeSequence = nodeSequence,
-                    content = calculateNodeSequenceContent(nodeSequence),
-                    range = calculateNodeSequenceRange(nodeSequence),
-                    identifier = nodeSequence[0].retrieveLocation().convertToPackageIdentifier(basePackageIdentifier),
-                    hash = nodeSequence.map { it.leniantHashCode(cloneType) }.hashCode(),
-                    mass = nodeSequence.sumBy { it.calculateMass() } + nodeSequence.size
+                nodeSequence = nodeSequence,
+                content = calculateNodeSequenceContent(nodeSequence),
+                range = calculateNodeSequenceRange(nodeSequence),
+                identifier = nodeSequence[0].retrieveLocation().convertToPackageIdentifier(basePackageIdentifier),
+                hash = nodeSequence.map { it.leniantHashCode(cloneType) }.hashCode(),
+                mass = nodeSequence.sumBy { it.calculateMass() } + nodeSequence.size
             )
         }
 
         private fun calculateNodeSequenceContent(nodeSequence: List<Node>): String {
             var result: String = nodeSequence[0].tokenRange.get().toString()
-            for(i: Int in (1 until nodeSequence.size)) {
-                result += if (nodeSequence[i - 1].range.get().end.line < nodeSequence[i].range.get().begin.line) "\n" else  " "
+            for (i: Int in (1 until nodeSequence.size)) {
+                result += if (nodeSequence[i - 1].range.get().end.line < nodeSequence[i].range.get().begin.line) "\n" else " "
                 result += nodeSequence[i].tokenRange.get().toString()
             }
 
