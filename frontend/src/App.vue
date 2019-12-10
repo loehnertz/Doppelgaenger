@@ -5,11 +5,12 @@
         </div>
         <div class="header level">
             <div class="level-left">
-                <div class="level-item">
+                <div class="level-item" id="logo-name">
+                    <img alt="Logo" id="logo" src="../public/logo.png">
                     <h1 class="title is-1" id="name">Doppelgänger</h1>
                 </div>
             </div>
-            <div class="level-right input-elements">
+            <div class="level-right" id="input-elements">
                 <div class="level-item">
                     <div class="field">
                         <div class="control">
@@ -184,6 +185,7 @@
                     .then((response) => {
                         this.cloneClasses = response.data["cloneClasses"];
                         this.cloneMetrics = response.data["metrics"];
+                        this.isLoading = false;
                     })
                     .catch((error) => {
                         console.error(error.response);
@@ -232,6 +234,17 @@
         padding: 20px;
     }
 
+    #logo-name {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    #logo {
+        max-height: 3em;
+        margin-right: 0.5em;
+    }
+
     #name {
         text-shadow: 0 0 6px #3298DC;
     }
@@ -265,6 +278,10 @@
         background-color: rgba(0, 0, 0, 0.25);
         padding: 0;
         margin: 0;
+    }
+
+    #input-elements {
+        padding-top: 0.5em;
     }
 
     #mass-threshold {

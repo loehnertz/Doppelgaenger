@@ -63,6 +63,7 @@
             rerenderGraph() {
                 this.flushGraph();
                 this.constructGraph(this.graphData["nodes"], this.graphData["edges"]);
+                this.watchStabilization();
                 setTimeout(() => this.fitAnimated(), 2500);
             },
             flushGraph() {
@@ -141,6 +142,15 @@
                     width: 100,
                     range,
                 }
+            },
+            watchStabilization() {
+                const stabilizationWatcher = setInterval(() => {
+                    if (!this.$refs["graph"]) return;
+                    if (this.$refs["graph"].network.physics.stabilizationIterations >= this.$refs["graph"].network.physics.options.stabilization.iterations) {
+                        this.$refs["graph"].network.physics.stabilized = true;
+                        clearInterval(stabilizationWatcher);
+                    }
+                }, 1000);
             },
             nodeSelectionHandler(values, id) {
                 const selectedNode = this.findNodeById(id);
