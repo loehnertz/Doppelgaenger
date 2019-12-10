@@ -20,12 +20,12 @@ fun Route.analysis(controller: AnalysisController) {
     route("/analysis") {
         get("/") {
             val projectDirectory: File = when (ProjectType.getProjectTypeByName(call.parameters["projectType"]!!.toString())) {
-                ProjectType.LOCAL -> File(call.parameters["projectRoot"]!!.toString())
+                ProjectType.LOCAL -> File(call.parameters["projectRoot"]!!.toString().removeSuffix("/"), AnalysisController.normalizeBasePath(call.parameters["basePath"]!!.toString()))
                 ProjectType.GIT   -> File(AnalysisController.cloneRepository("git@github.com:kevinvandervlist/SE.git"), AnalysisController.normalizeBasePath(call.parameters["basePath"]!!.toString()))
             }
 
             val request = AnalysisRequest(
-                basePath = call.parameters["basePath"]!!.toString(),
+                basePath = AnalysisController.normalizeBasePath(call.parameters["basePath"]!!.toString()),
                 projectRoot = projectDirectory,
                 cloneType = getCloneTypeByName(call.parameters["cloneType"] ?: CloneType.ONE.toString()),
                 massThreshold = call.parameters["massThreshold"]?.toInt()

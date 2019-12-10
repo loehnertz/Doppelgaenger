@@ -40,7 +40,7 @@ fun <T> Collection<T>.cartesianProduct(): List<Pair<T, T>> {
 fun String.filterOutComments(): String = this.replace(MultilineCommentRegex, "")
 
 fun Path.convertToPackageIdentifier(basePath: String): String {
-    return this.toFile().name.replace(Regex("[/\\\\]"), ".").substringAfterLast(basePath)
+    return this.toFile().absolutePath.substringAfterLast(basePath).removePrefix("/").replace('/', '.').removeSuffix(".$JavaFileExtension")
 }
 
 fun Node.retrieveLocation(): Path {

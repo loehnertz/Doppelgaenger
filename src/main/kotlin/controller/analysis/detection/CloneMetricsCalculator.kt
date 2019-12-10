@@ -39,7 +39,7 @@ class CloneMetricsCalculator(private val cloneClasses: List<Set<Unit>>, private 
 
     private fun processUnitContent(unit: Unit): List<Pair<Int, String>> {
         val beginLine: Int = unit.range.begin.line
-        val linesList: List<Int> = (beginLine .. unit.range.end.line).toList()
+        val linesList: List<Int> = (beginLine..unit.range.end.line).toList()
         val content: List<String> = unit.contentRaw.split("\n")
 
         return linesList.mapIndexed { index, it -> it to content[index] }

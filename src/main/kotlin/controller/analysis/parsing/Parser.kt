@@ -11,11 +11,12 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeS
 import kotlinx.coroutines.runBlocking
 import model.CloneType
 import model.Unit
+import utility.JavaFileExtension
+import utility.JavaTestDirectory
 import utility.mapConcurrently
 import utility.toNullable
 import java.io.File
 import java.nio.file.Paths
-import kotlin.reflect.KClass
 
 
 class Parser(private val basePath: String, private val projectRoot: File, private val cloneType: CloneType) {
@@ -27,16 +28,11 @@ class Parser(private val basePath: String, private val projectRoot: File, privat
             .walk()
             .filter { it.isFile }
             .filter { it.extension == JavaFileExtension }
+            .filter { !it.absolutePath.contains(JavaTestDirectory) }
             .toList()
             .mapNotNull { parser.parse(it).result.toNullable() }
             .mapConcurrently { Visitor.visit(it, nodeConversionFunction) }
             .flatten()
-    }
-
-    private fun filterOutNodeTypes(node: Node, vararg types: KClass<out Node>): Node {
-        node.childNodes.removeAll { types.contains(it::class) }
-        node.childNodes.forEach { filterOutNodeTypes(it, *types) }
-        return node
     }
 
     private fun constructJavaParser(): JavaParser {
@@ -56,9 +52,5 @@ class Parser(private val basePath: String, private val projectRoot: File, privat
 
     private fun constructNodeConversionFunction(): (Node) -> Unit {
         return { node: Node -> Unit.fromNode(node = node, basePath = basePath, cloneType = cloneType) }
-    }
-
-    companion object Constants {
-        private const val JavaFileExtension = "java"
     }
 }
