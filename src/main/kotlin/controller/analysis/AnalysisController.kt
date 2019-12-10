@@ -37,6 +37,7 @@ class AnalysisController {
     companion object {
         fun cloneRepository(gitUri: String): File {
             val projectDirectory = File("/tmp/${gitUri.substringAfterLast('/')}")
+            if (projectDirectory.exists()) return projectDirectory
             val process: Process = ProcessBuilder("git", "clone", gitUri, projectDirectory.absolutePath).start()
             process.waitFor()
             return projectDirectory
