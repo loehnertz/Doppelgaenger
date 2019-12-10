@@ -23,8 +23,26 @@ class CloneMetricsCalculator(private val cloneClasses: List<Set<Unit>>, private 
 
     private fun calculatePercentageOfDuplicatedLines(): Int {
         val totalLinesOfCode: Double = countLinesOfCode(units).toDouble()
-        val clonedLinesOfCode: Double = clonedUnits.sumBy { countSourceLinesOfCode(it.content) }.toDouble()
+        val clonedLinesOfCode: Double = countClonedLinesOfCode()
         return ((clonedLinesOfCode / totalLinesOfCode) * 100).toInt()
+    }
+
+    private fun countClonedLinesOfCode(): Double {
+        return clonedUnits.groupBy { it.identifier }.values.sumByDouble { countLinesOfFile(it) }
+    }
+
+    private fun countLinesOfFile(group: List<Unit>): Double {
+        val setOfLines: Set<Pair<Int, String>> = group.flatMap { unit -> processUnitContent(unit) }.toSet()
+        val fileContent: String = setOfLines.joinToString("\n") { it.second }
+        return countSourceLinesOfCode(fileContent).toDouble()
+    }
+
+    private fun processUnitContent(unit: Unit): List<Pair<Int, String>> {
+        val beginLine: Int = unit.range.begin.line
+        val linesList: List<Int> = (beginLine .. unit.range.end.line).toList()
+        val content: List<String> = unit.contentRaw.split("\n")
+
+        return linesList.mapIndexed { index, it -> it to content[index] }
     }
 
     private fun findLargestClone(): Pair<Set<Unit>, Int> {
