@@ -53,22 +53,6 @@ data class Unit(
         else                                -> false
     }
 
-    private fun containsNodeSequence(findNodeSequence: List<Node>): Boolean {
-        return if (node != null) { // Current unit is a single node
-            findNodeSequence.all { node.isAncestorOf(it) }
-        } else { // Current unit is a node sequence
-            findNodeSequence.all { findNode -> nodeSequence!!.any { it == findNode || it.isAncestorOf(findNode) } }
-        }
-    }
-
-    private fun containsNode(findNode: Node): Boolean {
-        return if (node != null) { // Current unit is a single node
-            node == findNode || node.isAncestorOf(findNode)
-        } else { // Current unit is a node sequence
-            nodeSequence!!.any { it == findNode || it.isAncestorOf(findNode) }
-        }
-    }
-
     companion object {
         private val DEFAULT_CLONETYPE = CloneType.ONE
 
@@ -99,7 +83,13 @@ data class Unit(
         private fun calculateNodeSequenceContent(nodeSequence: List<Node>): String {
             var result: String = nodeSequence[0].tokenRange.get().toString()
             for (i: Int in (1 until nodeSequence.size)) {
-                result += if (nodeSequence[i - 1].range.get().end.line < nodeSequence[i].range.get().begin.line) "\n" else " "
+                if (nodeSequence[i - 1].range.get().end.line == nodeSequence[i].range.get().begin.line) result += " "
+                else {
+                    for (k: Int in (nodeSequence[i - 1].range.get().end.line + 1 until nodeSequence[i].range.get().begin.line)) {
+                        result += " \n"
+                    }
+                    result += "\n"
+                }
                 result += nodeSequence[i].tokenRange.get().toString()
             }
 
