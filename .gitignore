@@ -2,6 +2,9 @@
 *.class
 /target
 
+# NPM files
+node_modules
+
 # Log file
 *.log
 

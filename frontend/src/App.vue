@@ -6,19 +6,20 @@
         <div class="header level">
             <div class="level-left">
                 <div class="level-item">
-                    <h1 id="name" class="title is-1">Doppelgänger</h1>
+                    <h1 class="title is-1" id="name">Doppelgänger</h1>
                 </div>
             </div>
             <div class="level-right input-elements">
                 <div class="level-item">
                     <div class="field">
                         <div class="control">
-                            <input
-                                    class="input"
-                                    placeholder="Base Package Identifier"
-                                    type="text"
-                                    v-model="basePackageIdentifier"
-                            >
+                            <div class="select">
+                                <select v-model="projectType">
+                                    <option disabled value="">Project Type</option>
+                                    <option value="LOCAL">Local Directory</option>
+                                    <option value="GIT">Git Repository</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -31,6 +32,18 @@
                                     placeholder="Project Root"
                                     type="text"
                                     v-model="projectRoot"
+                            >
+                        </div>
+                    </div>
+                </div>
+                <div class="level-item">
+                    <div class="field">
+                        <div class="control">
+                            <input
+                                    class="input"
+                                    placeholder="Base Path"
+                                    type="text"
+                                    v-model="basePath"
                             >
                         </div>
                     </div>
@@ -129,13 +142,23 @@
                 }
                 return data;
             },
-            basePackageIdentifier: {
+            projectType: {
                 get: function () {
-                    return this.retrieveQueryParameter('basePackageIdentifier');
+                    return this.retrieveQueryParameter('projectType');
                 },
                 set: function (newValue) {
                     if (!newValue) return;
-                    this.queryParameters.set('basePackageIdentifier', newValue);
+                    this.queryParameters.set('projectType', newValue);
+                    this.updateUrlQueryParameters();
+                },
+            },
+            basePath: {
+                get: function () {
+                    return this.retrieveQueryParameter('basePath');
+                },
+                set: function (newValue) {
+                    if (!newValue) return;
+                    this.queryParameters.set('basePath', newValue);
                     this.updateUrlQueryParameters();
                 },
             },
@@ -184,7 +207,8 @@
                 this.isLoading = true;
 
                 const parameters = {
-                    'basePackageIdentifier': this.basePackageIdentifier,
+                    'projectType': this.projectType,
+                    'basePath': this.basePath,
                     'projectRoot': this.projectRoot,
                     'cloneType': this.cloneType,
                     'massThreshold': this.massThreshold,

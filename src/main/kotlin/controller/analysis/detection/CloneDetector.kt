@@ -8,7 +8,7 @@ import utility.cartesianProduct
 import utility.getAllLineSiblings
 
 
-class CloneDetector(private val basePackageIdentifier: String, private val units: List<Unit>, massThreshold: Int?, private val similarityThreshold: Double, private val cloneType: CloneType) : CloneHandler {
+class CloneDetector(private val basePath: String, private val units: List<Unit>, massThreshold: Int?, private val similarityThreshold: Double, private val cloneType: CloneType) : CloneHandler {
     private val massThreshold: Int = massThreshold ?: calculateNodeMassAverage()
 
     fun detectClones(): Pair<List<Clone>, List<Set<Unit>>> {
@@ -28,7 +28,7 @@ class CloneDetector(private val basePackageIdentifier: String, private val units
     }
 
     fun findSequenceCloneClasses(clones: List<Clone>): List<Set<Unit>> {
-        val sequences: List<List<Unit>> = clones.flatMap { it.toList() }.asSequence().distinct().map { it.node!!.getAllLineSiblings() }.distinct().filter { it.size > 1 }.map { it.map { node -> Unit.fromNode(node, basePackageIdentifier, cloneType) } }.toList()
+        val sequences: List<List<Unit>> = clones.flatMap { it.toList() }.asSequence().distinct().map { it.node!!.getAllLineSiblings() }.distinct().filter { it.size > 1 }.map { it.map { node -> Unit.fromNode(node, basePath, cloneType) } }.toList()
         val cloneSequencesClasses: ArrayList<Set<List<Unit>>> = arrayListOf()
 
         val minimumSequenceLengthThreshold = 2
@@ -41,7 +41,7 @@ class CloneDetector(private val basePackageIdentifier: String, private val units
         }
 
         val cloneSequenceClassesUnit: List<List<List<Node>>> = cloneSequencesClasses.map { seqClass -> seqClass.map { sequence -> sequence.map { unit -> unit.node!! } } }
-        return cloneSequenceClassesUnit.map { seqClass -> seqClass.map { Unit.fromNodeSequence(it, basePackageIdentifier, cloneType) }.toSet() }
+        return cloneSequenceClassesUnit.map { seqClass -> seqClass.map { Unit.fromNodeSequence(it, basePath, cloneType) }.toSet() }
     }
 
     private fun filterBucket(bucket: List<List<Unit>>, cloneSequencesClasses: ArrayList<Set<List<Unit>>>) {

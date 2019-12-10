@@ -56,7 +56,7 @@ data class Unit(
         return if (node != null) { // Current unit is a single node
             findNodeSequence.all { node.isAncestorOf(it) }
         } else { // Current unit is a node sequence
-            findNodeSequence.all { findNode -> nodeSequence!!.any { it == findNode || it.isAncestorOf(findNode) }}
+            findNodeSequence.all { findNode -> nodeSequence!!.any { it == findNode || it.isAncestorOf(findNode) } }
         }
     }
 
@@ -71,23 +71,23 @@ data class Unit(
     companion object {
         private val DEFAULT_CLONETYPE = CloneType.ONE
 
-        fun fromNode(node: Node, basePackageIdentifier: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
+        fun fromNode(node: Node, basePath: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
             return Unit(
                 node = node,
                 content = node.tokenRange.get().toString().filterOutComments(),
                 range = node.range.get(),
-                identifier = node.retrieveLocation().convertToPackageIdentifier(basePackageIdentifier),
+                identifier = node.retrieveLocation().convertToPackageIdentifier(basePath),
                 hash = node.leniantHashCode(cloneType),
                 mass = node.calculateMass()
             )
         }
 
-        fun fromNodeSequence(nodeSequence: List<Node>, basePackageIdentifier: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
+        fun fromNodeSequence(nodeSequence: List<Node>, basePath: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
             return Unit(
                 nodeSequence = nodeSequence,
                 content = calculateNodeSequenceContent(nodeSequence),
                 range = calculateNodeSequenceRange(nodeSequence),
-                identifier = nodeSequence[0].retrieveLocation().convertToPackageIdentifier(basePackageIdentifier),
+                identifier = nodeSequence.first().retrieveLocation().convertToPackageIdentifier(basePath),
                 hash = nodeSequence.map { it.leniantHashCode(cloneType) }.hashCode(),
                 mass = nodeSequence.sumBy { it.calculateMass() } + nodeSequence.size
             )
