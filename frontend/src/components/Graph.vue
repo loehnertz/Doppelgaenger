@@ -28,13 +28,7 @@
                 graphOptions: {
                     nodes: {
                         chosen: {
-                            node: (values, id) => {
-                                const selectedNode = this.findNodeById(id);
-                                if (selectedNode.type === 'unit') return;
-                                const connectedNodeIds = this.$refs["graph"].getConnectedNodes(id);
-                                const connectedNodes = connectedNodeIds.map((nodeId) => this.findNodeById(nodeId));
-                                this.$root.$emit('selected-node', {selectedNode, connectedNodes})
-                            }
+                            node: this.nodeSelectionHandler,
                         },
                         font: {
                             align: 'left',
@@ -89,10 +83,10 @@
                     let renderedNode;
                     switch (node["type"]) {
                         case 'class':
-                            renderedNode = this.buildCloneClassNode(node.id, node.content, node.mass);
+                            renderedNode = this.buildCloneClassNode(node.id, node.content, node.mass, node["type"]);
                             break;
                         case 'unit':
-                            renderedNode = this.buildUnitNode(node.id, node.identifier, node.range.lineCount);
+                            renderedNode = this.buildUnitNode(node.id, node.identifier, node["type"]);
                             break;
                         default:
                             console.error(`Unknown node type '${node["type"]}'`);
@@ -104,10 +98,10 @@
             },
             setEdges(edges) {
                 for (let edge of edges) {
-                    this.graphEdges.push(this.buildEdge(edge.from, edge.to));
+                    this.graphEdges.push(this.buildEdge(edge.from, edge.to, edge.range));
                 }
             },
-            buildCloneClassNode(id, content, mass) {
+            buildCloneClassNode(id, content, mass, type) {
                 return {
                     id: id,
                     label: content,
@@ -119,9 +113,10 @@
                         background: 'whitesmoke',
                         border: 'blue',
                     },
+                    type,
                 }
             },
-            buildUnitNode(id, identifier, lineCount) {
+            buildUnitNode(id, identifier, type) {
                 return {
                     id: id,
                     label: identifier,
@@ -132,10 +127,10 @@
                         background: 'whitesmoke',
                         border: 'firebrick',
                     },
-                    lineCount,
+                    type,
                 }
             },
-            buildEdge(from, to) {
+            buildEdge(from, to, range) {
                 return {
                     from: from,
                     to: to,
@@ -144,7 +139,15 @@
                         highlight: 'lime',
                     },
                     width: 100,
+                    range,
                 }
+            },
+            nodeSelectionHandler(values, id) {
+                const selectedNode = this.findNodeById(id);
+                if (selectedNode.type === 'unit') return;
+                const connectedEdgeIds = this.$refs["graph"].getConnectedEdges(id);
+                const connectedEdges = connectedEdgeIds.map((edgeId) => this.findEdgeById(edgeId));
+                this.$root.$emit('selected-node', {selectedNode, connectedEdges});
             },
             focusOnNode(nodeId) {
                 const options = {
@@ -166,6 +169,11 @@
             findNodeById(nodeId) {
                 return this.graphNodes.find((node) => {
                     return node.id === nodeId;
+                });
+            },
+            findEdgeById(edgeId) {
+                return this.graphEdges.find((edge) => {
+                    return edge.id === edgeId;
                 });
             },
             findEdgeByFromTo(from, to) {

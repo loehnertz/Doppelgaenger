@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <h1 class="title">Doppelgänger</h1>
+        <h1 class="title is-1">Doppelgänger</h1>
         <div id="content">
             <Graph :graph-data="graphData" class="box" id="graph"/>
             <Sidebar :metrics="cloneMetrics" class="box" id="sidebar"/>
@@ -45,13 +45,13 @@
                             type: 'unit',
                             id: unitId,
                             identifier: unit.identifier,
-                            range: unit.range,
                         };
                         data.nodes.push(node);
 
                         const edge = {
                             from: cloneClassUnitId,
                             to: unitId,
+                            range: unit.range,
                         };
                         data.edges.push(edge);
                     }

@@ -1,6 +1,6 @@
 <template>
     <div class="sidebar">
-        <h1 class="subtitle">Metrics</h1>
+        <h1 class="title is-3">Metrics</h1>
         <hr>
         <div v-show="Object.keys(metrics).length > 0">
             <p>Number of Clones: {{ metrics["numberOfClones"] }}</p>
@@ -11,8 +11,8 @@
                 Focus on Largest Clone Class
             </button>
             <hr>
-            <div v-if="selectedNode && connectedNodes">
-                <h2 class="subtitle">Selected Node</h2>
+            <div v-if="selectedNode && connectedEdges">
+                <h2 class="subtitle">Clone Class</h2>
                 <div class="list selected-node">
                     <a @click="focusOnNode(selectedNode.id)" class="list-item">{{ selectedNode.label }}</a>
                 </div>
@@ -22,11 +22,11 @@
                 <br>
                 <div class="list connected-nodes">
                     <a
-                            :key="connectedNode.id"
-                            @click="focusOnNode(connectedNode.id)" class="list-item"
-                            v-for="connectedNode in connectedNodes"
+                            :key="connectedEdge.id"
+                            @click="focusOnNode(connectedEdge.to)" class="list-item"
+                            v-for="connectedEdge in connectedEdges"
                     >
-                        {{ connectedNode.id }} ({{ connectedNode.lineCount }})
+                        {{ connectedEdge.to }} ({{ renderRange(connectedEdge.range) }})
                     </a>
                 </div>
             </div>
@@ -40,13 +40,13 @@
         data() {
             return {
                 selectedNode: null,
-                connectedNodes: null,
+                connectedEdges: null,
             }
         },
         mounted() {
             this.$root.$on('selected-node', (node) => {
                 this.selectedNode = node.selectedNode;
-                this.connectedNodes = node.connectedNodes;
+                this.connectedEdges = node.connectedEdges;
             });
         },
         methods: {
@@ -55,6 +55,9 @@
             },
             retrieveLargestCloneClassNodeId() {
                 return this.metrics["largestCloneClass"][0]["hash"];
+            },
+            renderRange(range) {
+                return `${range["begin"]["line"]}:${range["begin"]["column"]} – ${range["end"]["line"]}:${range["end"]["column"]}`;
             },
         },
         props: {
@@ -75,7 +78,7 @@
     }
 
     .selected-node, .connected-nodes {
-        max-height: 20vh;
+        max-height: 15vh;
         overflow-y: scroll;
     }
 </style>
