@@ -10,6 +10,7 @@ import utility.*
 data class Unit(
     @JsonIgnore val node: Node? = null,
     @JsonIgnore val nodeSequence: List<Node>? = null,
+    @JsonIgnore val contentRaw: String,
     val content: String,
     val range: Range,
     val identifier: String,
@@ -52,28 +53,13 @@ data class Unit(
         else                                -> false
     }
 
-    private fun containsNodeSequence(findNodeSequence: List<Node>): Boolean {
-        return if (node != null) { // Current unit is a single node
-            findNodeSequence.all { node.isAncestorOf(it) }
-        } else { // Current unit is a node sequence
-            findNodeSequence.all { findNode -> nodeSequence!!.any { it == findNode || it.isAncestorOf(findNode) } }
-        }
-    }
-
-    private fun containsNode(findNode: Node): Boolean {
-        return if (node != null) { // Current unit is a single node
-            node == findNode || node.isAncestorOf(findNode)
-        } else { // Current unit is a node sequence
-            nodeSequence!!.any { it == findNode || it.isAncestorOf(findNode) }
-        }
-    }
-
     companion object {
         private val DEFAULT_CLONETYPE = CloneType.ONE
 
         fun fromNode(node: Node, basePath: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
             return Unit(
                 node = node,
+                contentRaw = node.tokenRange.get().toString(),
                 content = node.tokenRange.get().toString().filterOutComments(),
                 range = node.range.get(),
                 identifier = node.retrieveLocation().convertToPackageIdentifier(basePath),
@@ -85,7 +71,8 @@ data class Unit(
         fun fromNodeSequence(nodeSequence: List<Node>, basePath: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
             return Unit(
                 nodeSequence = nodeSequence,
-                content = calculateNodeSequenceContent(nodeSequence),
+                contentRaw = calculateNodeSequenceContent(nodeSequence),
+                content = calculateNodeSequenceContent(nodeSequence).filterOutComments(),
                 range = calculateNodeSequenceRange(nodeSequence),
                 identifier = nodeSequence.first().retrieveLocation().convertToPackageIdentifier(basePath),
                 hash = nodeSequence.map { it.leniantHashCode(cloneType) }.hashCode(),
@@ -96,7 +83,13 @@ data class Unit(
         private fun calculateNodeSequenceContent(nodeSequence: List<Node>): String {
             var result: String = nodeSequence[0].tokenRange.get().toString()
             for (i: Int in (1 until nodeSequence.size)) {
-                result += if (nodeSequence[i - 1].range.get().end.line < nodeSequence[i].range.get().begin.line) "\n" else " "
+                if (nodeSequence[i - 1].range.get().end.line == nodeSequence[i].range.get().begin.line) result += " "
+                else {
+                    for (k: Int in (nodeSequence[i - 1].range.get().end.line + 1 until nodeSequence[i].range.get().begin.line)) {
+                        result += " \n"
+                    }
+                    result += "\n"
+                }
                 result += nodeSequence[i].tokenRange.get().toString()
             }
 
