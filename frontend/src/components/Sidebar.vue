@@ -26,7 +26,8 @@
                 <div class="list connected-nodes">
                     <a
                             :key="connectedEdge.id"
-                            @click="focusOnNode(connectedEdge.to)" class="list-item"
+                            @click="selectUnitFromAffectedUnitList(connectedEdge.to, connectedEdge.range)"
+                            class="list-item"
                             v-for="connectedEdge in connectedEdges"
                     >
                         {{ connectedEdge.to }} ({{ renderRange(connectedEdge.range) }})
@@ -66,6 +67,10 @@
             });
         },
         methods: {
+            selectUnitFromAffectedUnitList(unitNodeId, range) {
+                this.copyUnitLocationToClipboard(unitNodeId, range);
+                this.focusOnNode(unitNodeId);
+            },
             focusOnNode(nodeId) {
                 this.$root.$emit('focus-on-node', nodeId);
                 this.selectedUnitNode = nodeId;
@@ -79,6 +84,10 @@
             selectedUnitNodeHandler(unitNode) {
                 this.selectedUnitNode = unitNode.value;
                 this.focusOnNode(this.selectedUnitNode);
+            },
+            copyUnitLocationToClipboard(unitNodeId, range) {
+                const message = `${unitNodeId} ${range["begin"]["line"]}:${range["begin"]["column"]}`;
+                this.$copyText(message);
             },
         },
         props: {
