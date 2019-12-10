@@ -107,11 +107,11 @@
                     label: content,
                     title: this.convertWhitespaceCharactersToHtml(content),
                     value: mass,
-                    borderWidth: 5,
+                    borderWidth: 6,
                     shape: 'box',
                     color: {
                         background: 'whitesmoke',
-                        border: 'blue',
+                        border: '#3298DC',
                     },
                     type,
                 }
@@ -125,7 +125,7 @@
                     shape: 'box',
                     color: {
                         background: 'whitesmoke',
-                        border: 'firebrick',
+                        border: '#E01A4F',
                     },
                     type,
                 }
@@ -135,8 +135,8 @@
                     from: from,
                     to: to,
                     color: {
-                        color: 'green',
-                        highlight: 'lime',
+                        color: '#FFBF00',
+                        highlight: '#FFBF00',
                     },
                     width: 100,
                     range,
