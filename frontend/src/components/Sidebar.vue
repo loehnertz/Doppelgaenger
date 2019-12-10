@@ -12,14 +12,13 @@
             </button>
             <hr>
             <div v-if="selectedNode && connectedEdges">
-                <h2 class="subtitle">Clone Class</h2>
+                <h2 class="subtitle is-4">Clone Class</h2>
                 <div class="list selected-node">
                     <a @click="focusOnNode(selectedNode.id)" class="list-item">{{ selectedNode.label }}</a>
                 </div>
                 <p v-if="selectedNode.value">Mass: {{ selectedNode.value }}</p>
                 <br>
-                <p>Affected Units:</p>
-                <br>
+                <p class="subtitle is-5">Affected Units:</p>
                 <div class="list connected-nodes">
                     <a
                             :key="connectedEdge.id"

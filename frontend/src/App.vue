@@ -6,7 +6,7 @@
         <div class="header level">
             <div class="level-left">
                 <div class="level-item">
-                    <h1 class="title is-1">Doppelgänger</h1>
+                    <h1 id="name" class="title is-1">Doppelgänger</h1>
                 </div>
             </div>
             <div class="level-right input-elements">
@@ -136,6 +136,7 @@
                 set: function (newValue) {
                     if (!newValue) return;
                     this.queryParameters.set('basePackageIdentifier', newValue);
+                    this.updateUrlQueryParameters();
                 },
             },
             projectRoot: {
@@ -145,6 +146,7 @@
                 set: function (newValue) {
                     if (!newValue) return;
                     this.queryParameters.set('projectRoot', newValue);
+                    this.updateUrlQueryParameters();
                 },
             },
             cloneType: {
@@ -154,6 +156,7 @@
                 set: function (newValue) {
                     if (!newValue) return;
                     this.queryParameters.set('cloneType', newValue);
+                    this.updateUrlQueryParameters();
                 },
             },
             massThreshold: {
@@ -163,6 +166,7 @@
                 set: function (newValue) {
                     if (!newValue) return;
                     this.queryParameters.set('massThreshold', newValue);
+                    this.updateUrlQueryParameters();
                 },
             },
         },
@@ -171,7 +175,7 @@
                 cloneClasses: [],
                 cloneMetrics: {},
                 queryParameters: new URLSearchParams(window.location.search),
-                throbberColor: '#3298dc',
+                throbberColor: '#3298DC',
                 isLoading: false,
             }
         },
@@ -201,6 +205,8 @@
                     .catch((error) => {
                         console.error(error.response);
                     });
+
+                this.updateUrlQueryParameters();
             },
             retrieveQueryParameter(key) {
                 if (this.queryParameters.has(key)) {
@@ -208,6 +214,10 @@
                 } else {
                     return null;
                 }
+            },
+            updateUrlQueryParameters() {
+                const newUrl = decodeURIComponent(`${window.location.origin}${window.location.pathname}?${this.queryParameters.toString()}`);
+                history.pushState({}, document.title, newUrl);
             },
         },
     }
@@ -220,6 +230,10 @@
         font-family: 'Rubik', sans-serif;
         margin: 0;
         padding: 20px;
+    }
+
+    #name {
+        text-shadow: 0 0 6px #3298DC;
     }
 
     #content {
