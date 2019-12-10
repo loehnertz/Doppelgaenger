@@ -45,6 +45,28 @@ data class Unit(
         return "Unit(id='$id', content='$content', range=$range, identifier=$identifier)"
     }
 
+    fun contains(clone: Unit): Boolean = when {
+        this == clone -> false
+        clone.node != null -> containsNode(clone.node) // Check if current Unit contains single node
+        else -> containsNodeSequence(clone.nodeSequence!!) // Check if current Unit contains sequence node
+    }
+
+    private fun containsNodeSequence(findNodeSequence: List<Node>): Boolean {
+        return if (node != null) { // Current unit is a single node
+            findNodeSequence.all { node.isAncestorOf(it) }
+        } else { // Current unit is a node sequence
+            findNodeSequence.all { findNode -> nodeSequence!!.any { it == findNode || it.isAncestorOf(findNode) }}
+        }
+    }
+
+    private fun containsNode(findNode: Node): Boolean {
+        return if (node != null) { // Current unit is a single node
+            node == findNode || node.isAncestorOf(findNode)
+        } else { // Current unit is a node sequence
+            nodeSequence!!.any { it == findNode || it.isAncestorOf(findNode) }
+        }
+    }
+
     companion object {
         private val DEFAULT_CLONETYPE = CloneType.ONE
 
@@ -70,7 +92,7 @@ data class Unit(
             )
         }
 
-        private fun calculateNodeSequenceRange(nodeSequence: List<Node>): Range {
+        private fun calculateNodeSequenceRange(nodeSequence: List<Node>): Range { // TODO: Add lineCount
             val initialPosition = nodeSequence[0].range.get().begin
             val finalPosition = nodeSequence[nodeSequence.size - 1].range.get().end
             return Range(Position.pos(initialPosition.line, initialPosition.column), Position.pos(finalPosition.line, finalPosition.column))

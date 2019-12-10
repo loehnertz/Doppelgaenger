@@ -56,6 +56,10 @@ interface CloneHandler {
         return clones.flatMap { it.toList() }.toSet().let { filterOutSubClonesFromCloneUnitCollection(it) }
     }
 
+    fun retrieveClonedUnitsFromCloneClasses(cloneClasses: List<Set<Unit>>): List<Unit> {
+        return cloneClasses.flatten().filter { clone -> !cloneClasses.flatten().any { it.contains(clone) } }
+    }
+
     fun retrieveCloneClasses(clones: List<Clone>): List<Set<Unit>> {
         return retrieveClonedUnits(clones).groupBy { it.hash }.map { it.value.toSet() }.filter { it.size > 1 }
     }

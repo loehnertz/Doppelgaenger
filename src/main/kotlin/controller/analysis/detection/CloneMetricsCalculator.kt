@@ -3,14 +3,12 @@ package controller.analysis.detection
 import com.github.javaparser.ast.CompilationUnit
 import model.CloneMetrics
 import model.Unit
-import utility.Clone
 import utility.MultilineCommentRegex
 import java.io.File
 
 
-class CloneMetricsCalculator(private val clones: List<Clone>, private val units: List<Unit>) : CloneHandler {
-    private val clonedUnits: List<Unit> = retrieveClonedUnits(clones)
-    private val cloneClasses: List<Set<Unit>> = retrieveCloneClasses(clones)
+class CloneMetricsCalculator(private val cloneClasses: List<Set<Unit>>, private val units: List<Unit>) : CloneHandler {
+    private val clonedUnits: List<Unit> = retrieveClonedUnitsFromCloneClasses(cloneClasses)
 
     fun calculateMetrics(): CloneMetrics {
         return CloneMetrics(
@@ -29,17 +27,17 @@ class CloneMetricsCalculator(private val clones: List<Clone>, private val units:
         return ((clonedLinesOfCode / totalLinesOfCode) * 100).toInt()
     }
 
-    private fun findLargestClone(): Pair<Clone, Int> {
-        val largestClone: Pair<Unit, Unit> = clones.maxBy { listOf(it.first.range.lineCount, it.second.range.lineCount).max()!! }!!
-        return Pair(largestClone, listOf(largestClone.first.range.lineCount, largestClone.second.range.lineCount).max()!!)
+    private fun findLargestClone(): Pair<Set<Unit>, Int> {
+        val largestClone: Set<Unit> = cloneClasses.maxBy { cloneClass -> cloneClass.map { it.range.end.line - it.range.begin.line }.max()!!}!!
+        return Pair(largestClone, largestClone.map { it.range.end.line - it.range.begin.line }.max()!!)
     }
 
     private fun findLargestCloneClass(): Set<Unit> {
         return cloneClasses.maxBy { cloneClass -> cloneClass.maxBy { unit -> unit.content.length }!!.content.length }!!
     }
 
-    private fun selectRandomExampleClones(): List<Clone> {
-        return clones.shuffled().take(EXAMPLE_CLONE_AMOUNT)
+    private fun selectRandomExampleClones(): List<Set<Unit>> {
+        return cloneClasses.shuffled().take(EXAMPLE_CLONE_AMOUNT)
     }
 
     private fun countLinesOfCode(units: List<Unit>): Int {

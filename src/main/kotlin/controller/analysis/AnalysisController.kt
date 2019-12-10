@@ -23,8 +23,10 @@ class AnalysisController {
         val sequenceCloneClasses: List<Set<Unit>> = cloneDetector.findSequenceCloneClasses(clones).toList()
         val cloneClassesFiltered: List<Set<Unit>> = cloneDetector.filterOutClonesIncludedInSequenceClasses(cloneClasses, sequenceCloneClasses)
 
-        val metrics: CloneMetrics = CloneMetricsCalculator(clones, units).calculateMetrics() // TODO: Calculate metrics using sequenceCloneClasses and cloneClassesFiltered
-        return constructAnalysisResponse(cloneClassesFiltered + sequenceCloneClasses, metrics)
+        val allClones: List<Set<Unit>> = cloneClassesFiltered + sequenceCloneClasses
+
+        val metrics: CloneMetrics = CloneMetricsCalculator(allClones, units).calculateMetrics() // TODO: Calculate metrics using sequenceCloneClasses and cloneClassesFiltered
+        return constructAnalysisResponse(allClones, metrics)
             .also { println("The analysis of project '${analysisRequest.projectRoot}' took ${(System.currentTimeMillis() - startTime) / 1000} seconds.") }
     }
 
