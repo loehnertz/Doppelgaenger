@@ -1,5 +1,6 @@
 <template>
     <div id="app">
+        <notifications/>
         <div id="throbber" v-show="isLoading">
             <Throbber :color="throbberColor" :is-loading="isLoading"/>
         </div>

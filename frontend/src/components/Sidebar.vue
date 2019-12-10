@@ -75,8 +75,12 @@
                 this.$root.$emit('focus-on-node', nodeId);
                 this.selectedUnitNode = nodeId;
             },
-            retrieveLargestCloneClassNodeId() {
-                return this.metrics["largestCloneClass"][0]["hash"];
+            copyUnitLocationToClipboard(unitNodeId, range) {
+                this.$copyText(`${unitNodeId} ${range["begin"]["line"]}:${range["begin"]["column"]}`);
+                this.$notify({
+                    title: `Copied the location of the unit '${unitNodeId}' into the clipboard`,
+                    position: ['bottom', 'right']
+                });
             },
             renderRange(range) {
                 return `${range["begin"]["line"]}:${range["begin"]["column"]} – ${range["end"]["line"]}:${range["end"]["column"]}`;
