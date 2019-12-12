@@ -106,7 +106,7 @@
                 return {
                     id: id,
                     label: content,
-                    title: this.convertWhitespaceCharactersToHtml(content),
+                    title: this.generateGraphPopup(this.convertWhitespaceCharactersToHtml(content)),
                     value: mass,
                     borderWidth: 6,
                     shape: 'box',
@@ -121,7 +121,7 @@
                 return {
                     id: id,
                     label: identifier,
-                    title: this.convertWhitespaceCharactersToHtml(identifier),
+                    title: this.generateGraphPopup(this.convertWhitespaceCharactersToHtml(identifier)),
                     borderWidth: 5,
                     shape: 'box',
                     color: {
@@ -135,7 +135,7 @@
                 return {
                     from: from,
                     to: to,
-                    title: this.convertWhitespaceCharactersToHtml(content),
+                    title: this.generateGraphPopup(this.convertWhitespaceCharactersToHtml(content)),
                     color: {
                         color: '#FFBF00',
                         highlight: '#FFBF00',
@@ -194,6 +194,11 @@
             },
             convertWhitespaceCharactersToHtml(title) {
                 return title.replace(/\r/g, '').replace(/\t/g, '  ').replace(/ /g, '&nbsp').replace(/\n/g, '<br>');
+            },
+            generateGraphPopup(title) {
+                return (
+                    `<span class="box" style="padding: 11px !important;">${title}</span>`
+                );
             },
         },
         props: {

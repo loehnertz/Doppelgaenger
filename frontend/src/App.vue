@@ -330,4 +330,10 @@
     #project-root {
         width: 32em;
     }
+
+    .vis-tooltip {
+        background-color: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+    }
 </style>
