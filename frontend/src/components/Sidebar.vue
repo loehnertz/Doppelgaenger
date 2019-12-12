@@ -7,12 +7,12 @@
             <hr>
             <div class="list scrollable-condensed">
                 <a
-                        :key="cloneClassId"
-                        @click="focusOnNode(cloneClassId)"
+                        :key="cloneClassId[0]"
+                        @click="focusOnNode(cloneClassId[0])"
                         class="list-item"
                         v-for="(cloneClassId, index) in cloneClasses"
                 >
-                    {{ renderNthLargestCloneLabel(index + 1) }}
+                    {{ renderNthLargestCloneLabel(index + 1) }} ({{ cloneClassId[1] }} SLOC)
                 </a>
             </div>
             <hr>
@@ -103,10 +103,10 @@
             determineOrdinalSuffix(i) {
                 let j = i % 10;
                 let k = i % 100;
-                if (j === 1 && k !== 11) return i + "st";
-                if (j === 2 && k !== 12) return i + "nd";
-                if (j === 3 && k !== 13) return i + "rd";
-                return i + "th";
+                if (j === 1 && k !== 11) return i + 'st';
+                if (j === 2 && k !== 12) return i + 'nd';
+                if (j === 3 && k !== 13) return i + 'rd';
+                return i + 'th';
             },
         },
         props: {

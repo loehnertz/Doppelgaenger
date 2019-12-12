@@ -37,7 +37,13 @@ fun <T> Collection<T>.cartesianProduct(): List<Pair<T, T>> {
     return pairs.toList()
 }
 
-fun String.filterOutComments(): String = this.replace(MultilineCommentRegex, "")
+fun String.isBlankLine(): Boolean = this.isBlank()
+
+fun String.isCommentLine(): Boolean = this.trim().startsWith(SinglelineCommentToken)
+
+fun String.filterOutBlankLinesAndJavaComments(): String = this.replace("\r", "").replace(MultilineCommentRegex, "").split("\n").filter { !it.isBlankLine() }.filter { !it.isCommentLine() }.joinToString("\n")
+
+fun String.countJavaSloc(): Int = this.filterOutBlankLinesAndJavaComments().split("\n").count()
 
 fun Path.convertToPackageIdentifier(basePath: String): String {
     return this.toFile().absolutePath.substringAfterLast(basePath).removePrefix("/").replace('/', '.').removeSuffix(".$JavaFileExtension")
