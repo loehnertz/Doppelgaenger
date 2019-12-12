@@ -17,7 +17,7 @@ class AnalysisController {
         val startTime: Long = System.currentTimeMillis()
         val units: List<Unit> = Parser(analysisRequest.basePath, analysisRequest.projectRoot, analysisRequest.cloneType).parse()
 
-        val cloneDetector = CloneDetector(analysisRequest.basePath, units, analysisRequest.massThreshold, (100).toDouble(), analysisRequest.cloneType) // TODO: add similarity Threshold as a request parameter
+        val cloneDetector = CloneDetector(analysisRequest.basePath, units, analysisRequest.massThreshold, analysisRequest.similarityThreshold, analysisRequest.cloneType)
         val (clones: List<Clone>, cloneClasses: List<Set<Unit>>) = cloneDetector.detectClones()
 
         val sequenceCloneClasses: List<Set<Unit>> = cloneDetector.findSequenceCloneClasses(clones).toList()
@@ -25,7 +25,7 @@ class AnalysisController {
 
         val allClones: List<Set<Unit>> = (cloneClassesFiltered + sequenceCloneClasses).sortedByDescending { cloneClass -> cloneClass.map { it.content.length }.average() }
 
-        val metrics: CloneMetrics = CloneMetricsCalculator(allClones, units).calculateMetrics() // TODO: Calculate metrics using sequenceCloneClasses and cloneClassesFiltered
+        val metrics: CloneMetrics = CloneMetricsCalculator(allClones, units).calculateMetrics()
         return constructAnalysisResponse(allClones, metrics)
             .also { println("The analysis of project '${analysisRequest.basePath}' took ${(System.currentTimeMillis() - startTime) / 1000} seconds.") }
     }
