@@ -17,7 +17,8 @@ class CloneDetector(private val basePath: String, private val units: List<Unit>,
             .groupBy { it.hash }
             .map { it.value }
             .filter { it.size > 1 }
-            .flatMap { it.cartesianProduct() } // TODO: Add filter by similarity
+            .flatMap { it.cartesianProduct() }
+            .filter { calculateNodeSimilarity(it.first.node!!, it.second.node!!) >= similarityThreshold }
             .let { filterOutSubClonesFromCloneCollection(it) }
         val cloneClasses: List<Set<Unit>> = retrieveCloneClasses(clones)
         return clones to cloneClasses
@@ -27,9 +28,11 @@ class CloneDetector(private val basePath: String, private val units: List<Unit>,
         return cloneClasses.filter { cloneClass -> !sequenceCloneClasses.any { sequenceCloneClass -> cloneClassIncludedInSequenceCloneClass(cloneClass, sequenceCloneClass) } }
     }
 
-    fun findSequenceCloneClasses(clones: List<Clone>): List<Set<Unit>> {
+    fun findSequenceCloneClasses(clones: List<Clone>): List<Set<Unit>> /*TODO: = runBlocking */ {
         val sequences: List<List<Unit>> = clones.flatMap { it.toList() }.asSequence().distinct().map { it.node!!.getAllLineSiblings() }.distinct().filter { it.size > 1 }.map { it.map { node -> Unit.fromNode(node, basePath, cloneType) } }.toList()
         val cloneSequencesClasses: ArrayList<Set<List<Unit>>> = arrayListOf()
+
+        if (sequences.isEmpty()) return listOf()
 
         val minimumSequenceLengthThreshold = 2
         val maximumSequenceLength: Int = sequences.maxBy { it.size }!!.size
@@ -37,7 +40,7 @@ class CloneDetector(private val basePath: String, private val units: List<Unit>,
         for (k: Int in (minimumSequenceLengthThreshold..maximumSequenceLength).reversed()) {
             val subsequencesOfLengthK: List<List<Unit>> = sequences.flatMap { it.windowed(k) }.filter { subsequence -> subsequence.any { it.mass > massThreshold } }
             val buckets: List<List<List<Unit>>> = subsequencesOfLengthK.groupBy { subsequence -> subsequence.map { it.hash }.hashCode() }.map { it.value }.filter { it.size > 1 }
-            buckets.forEach { filterBucket(it, cloneSequencesClasses) }
+            buckets.forEach { filterBucket(it, cloneSequencesClasses) } // TODO: use the concurrent map
         }
 
         val cloneSequenceClassesUnit: List<List<List<Node>>> = cloneSequencesClasses.map { seqClass -> seqClass.map { sequence -> sequence.map { unit -> unit.node!! } } }
@@ -46,13 +49,13 @@ class CloneDetector(private val basePath: String, private val units: List<Unit>,
 
     private fun filterBucket(bucket: List<List<Unit>>, cloneSequencesClasses: ArrayList<Set<List<Unit>>>) {
         val cloneGroup: Set<List<Unit>> = bucket.cartesianProduct() // Get clone pairs
-            .filter {
+            .filter { // filter out subsequences of already found subsequences clones
                 listOf(
                     sequenceIncludedInList(it.first, cloneSequencesClasses),
                     sequenceIncludedInList(it.second, cloneSequencesClasses)
                 ).any { isIncluded -> !isIncluded }
             } // filter out subsequences of already found subsequences clones
-            //.filter { calculateSequenceSimilarity(it.first, it.second, massThreshold) > similarityThreshold } // TODO: Study similarity check
+            .filter { calculateSequenceSimilarity(it.first, it.second) > similarityThreshold }
             .flatMap { listOf(it.first, it.second) } // flatten to obtain the clone group
             .toSet()
 

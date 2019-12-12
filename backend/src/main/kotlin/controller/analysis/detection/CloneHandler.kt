@@ -4,7 +4,6 @@ import com.github.javaparser.ast.Node
 import controller.analysis.parsing.Visitor
 import model.Unit
 import utility.Clone
-import utility.calculateMass
 import utility.getAllParentNodes
 
 
@@ -36,16 +35,29 @@ interface CloneHandler {
         return !node.getAllParentNodes().any { parent -> cloneNodes.contains(parent) }
     }
 
-    fun calculateSequenceSimilarity(firstSequence: List<Unit>, secondSequence: List<Unit>, massThreshold: Int): Double {
-        return firstSequence.sumByDouble { unit -> calculateSimilarity(unit.node!!, secondSequence[firstSequence.indexOf(unit)].node!!, massThreshold) }
+    fun calculateSequenceSimilarity(firstSequence: List<Unit>, secondSequence: List<Unit>): Double {
+        val sharedAndUniqueNodes: List<Triple<Int, Int, Int>> = firstSequence.mapIndexed { index, unit -> retrieveSharedAndUnsharedNodes(unit.node!!, secondSequence[index].node!!) }
+
+        val nodesShared: Int = sharedAndUniqueNodes.sumBy { it.first }
+        val nodesOnlyInFirst: Int = sharedAndUniqueNodes.sumBy { it.second }
+        val nodesOnlyInSecond: Int = sharedAndUniqueNodes.sumBy { it.third }
+
+        return computeSimilarity(nodesShared, nodesOnlyInFirst, nodesOnlyInSecond)
     }
 
-    fun calculateSimilarity(firstNode: Node, secondNode: Node, massThreshold: Int): Double {
-        val firstCloneSubnodes: List<Node> = Visitor.visit(firstNode).filter { it.calculateMass() >= massThreshold }
-        val secondCloneSubnodes: List<Node> = Visitor.visit(secondNode).filter { it.calculateMass() >= massThreshold }
-        val sharedNodes = firstCloneSubnodes.intersect(secondCloneSubnodes)
+    fun calculateNodeSimilarity(firstNode: Node, secondNode: Node): Double {
+        val (nodesShared: Int, nodesOnlyInFirst: Int, nodesOnlyInSecond: Int) = retrieveSharedAndUnsharedNodes(firstNode, secondNode)
 
-        return computeSimilarity(sharedNodes.size, firstCloneSubnodes.filter { !sharedNodes.contains(it) }.size, secondCloneSubnodes.filter { !sharedNodes.contains(it) }.size)
+        val similarity = computeSimilarity(nodesShared, nodesOnlyInFirst, nodesOnlyInSecond)
+        return similarity
+    }
+
+    private fun retrieveSharedAndUnsharedNodes(firstNode: Node, secondNode: Node): Triple<Int, Int, Int> {
+        val firstCloneSubnodes: List<Node> = Visitor.visit(firstNode).filter { it.childNodes.size != 0 }
+        val secondCloneSubnodes: List<Node> = Visitor.visit(secondNode).filter { it.childNodes.size != 0 }
+        val sharedNodes: Set<Node> = firstCloneSubnodes.intersect(secondCloneSubnodes)
+
+        return Triple(sharedNodes.size, firstCloneSubnodes.filter { !sharedNodes.contains(it) }.size,  secondCloneSubnodes.filter { !sharedNodes.contains(it) }.size)
     }
 
     fun computeSimilarity(sharedNodesCount: Int, onlyInFirstCount: Int, onlyInSecondCount: Int): Double {
