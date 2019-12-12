@@ -17,7 +17,8 @@ class CloneDetector(private val basePath: String, private val units: List<Unit>,
             .groupBy { it.hash }
             .map { it.value }
             .filter { it.size > 1 }
-            .flatMap { it.cartesianProduct() } // TODO: Add filter by similarity
+            .flatMap { it.cartesianProduct() }
+            .filter { calculateNodeSimilarity(it.first.node!!, it.second.node!!) >= similarityThreshold }
             .let { filterOutSubClonesFromCloneCollection(it) }
         val cloneClasses: List<Set<Unit>> = retrieveCloneClasses(clones)
         return clones to cloneClasses
@@ -46,13 +47,13 @@ class CloneDetector(private val basePath: String, private val units: List<Unit>,
 
     private fun filterBucket(bucket: List<List<Unit>>, cloneSequencesClasses: ArrayList<Set<List<Unit>>>) {
         val cloneGroup: Set<List<Unit>> = bucket.cartesianProduct() // Get clone pairs
-            .filter {
+            .filter { // filter out subsequences of already found subsequences clones
                 listOf(
                     sequenceIncludedInList(it.first, cloneSequencesClasses),
                     sequenceIncludedInList(it.second, cloneSequencesClasses)
                 ).any { isIncluded -> !isIncluded }
             } // filter out subsequences of already found subsequences clones
-            //.filter { calculateSequenceSimilarity(it.first, it.second, massThreshold) > similarityThreshold } // TODO: Study similarity check
+            .filter { calculateSequenceSimilarity(it.first, it.second) > similarityThreshold }
             .flatMap { listOf(it.first, it.second) } // flatten to obtain the clone group
             .toSet()
 
