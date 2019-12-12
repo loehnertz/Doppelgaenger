@@ -49,7 +49,8 @@ class CloneDetector(private val basePath: String, private val units: List<Unit>,
 
     private fun filterBucket(bucket: List<List<Unit>>, cloneSequencesClasses: ArrayList<Set<List<Unit>>>) {
         val cloneGroup: Set<List<Unit>> = bucket.cartesianProduct() // Get clone pairs
-            .filter { // filter out subsequences of already found subsequences clones
+            .filter {
+                // filter out subsequences of already found subsequences clones
                 listOf(
                     sequenceIncludedInList(it.first, cloneSequencesClasses),
                     sequenceIncludedInList(it.second, cloneSequencesClasses)

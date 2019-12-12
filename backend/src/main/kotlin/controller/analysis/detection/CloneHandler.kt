@@ -57,7 +57,7 @@ interface CloneHandler {
         val secondCloneSubnodes: List<Node> = Visitor.visit(secondNode).filter { it.childNodes.size != 0 }
         val sharedNodes: Set<Node> = firstCloneSubnodes.intersect(secondCloneSubnodes)
 
-        return Triple(sharedNodes.size, firstCloneSubnodes.filter { !sharedNodes.contains(it) }.size,  secondCloneSubnodes.filter { !sharedNodes.contains(it) }.size)
+        return Triple(sharedNodes.size, firstCloneSubnodes.filter { !sharedNodes.contains(it) }.size, secondCloneSubnodes.filter { !sharedNodes.contains(it) }.size)
     }
 
     fun computeSimilarity(sharedNodesCount: Int, onlyInFirstCount: Int, onlyInSecondCount: Int): Double {

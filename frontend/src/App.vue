@@ -68,6 +68,22 @@
                         <div class="control">
                             <input
                                     class="input"
+                                    id="similarity-threshold"
+                                    max="100"
+                                    min="0"
+                                    placeholder="Mass Threshold"
+                                    step="1"
+                                    type="number"
+                                    v-model="similarityThreshold"
+                            >
+                        </div>
+                    </div>
+                </div>
+                <div class="level-item">
+                    <div class="field">
+                        <div class="control">
+                            <input
+                                    class="input"
                                     id="mass-threshold"
                                     placeholder="Mass Threshold"
                                     step="1"
@@ -178,7 +194,8 @@
                 projectRoot: '',
                 basePath: '',
                 cloneType: 'ONE',
-                massThreshold: '25',
+                similarityThreshold: '0',
+                massThreshold: '15',
                 cloneClasses: [],
                 cloneMetrics: {},
             }
@@ -195,6 +212,7 @@
                     'basePath': this.basePath,
                     'projectRoot': this.projectRoot,
                     'cloneType': this.cloneType,
+                    'similarityThreshold': this.similarityThreshold,
                     'massThreshold': this.massThreshold,
                 };
 
@@ -323,12 +341,12 @@
         padding-top: 0.5em;
     }
 
-    #mass-threshold {
+    #mass-threshold, #similarity-threshold {
         width: 4em;
     }
 
     #project-root {
-        width: 32em;
+        width: 15em;
     }
 
     .vis-tooltip {

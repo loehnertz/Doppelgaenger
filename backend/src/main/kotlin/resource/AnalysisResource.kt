@@ -8,11 +8,11 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
-import model.AnalysisRequest
-import model.AnalysisResponse
 import model.CloneType
 import model.CloneType.Companion.getCloneTypeByName
 import model.ProjectType
+import model.resource.AnalysisRequest
+import model.resource.AnalysisResponse
 import java.io.File
 
 
@@ -28,8 +28,9 @@ fun Route.analysis(controller: AnalysisController) {
                 basePath = AnalysisController.normalizeBasePath(call.parameters["basePath"]!!.toString()),
                 projectRoot = projectDirectory,
                 cloneType = getCloneTypeByName(call.parameters["cloneType"] ?: CloneType.ONE.toString()),
+                similarityThreshold = call.parameters["similarityThreshold"]!!.toDouble() / 100,
                 massThreshold = call.parameters["massThreshold"]?.toInt()
-            )
+            ).also { it.verify() }
 
             val response: AnalysisResponse = controller.analyze(request)
 

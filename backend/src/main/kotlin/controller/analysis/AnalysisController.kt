@@ -3,10 +3,10 @@ package controller.analysis
 import controller.analysis.detection.CloneDetector
 import controller.analysis.detection.CloneMetricsCalculator
 import controller.analysis.parsing.Parser
-import model.AnalysisRequest
-import model.AnalysisResponse
 import model.CloneMetrics
 import model.Unit
+import model.resource.AnalysisRequest
+import model.resource.AnalysisResponse
 import utility.Clone
 import utility.toJson
 import java.io.File
