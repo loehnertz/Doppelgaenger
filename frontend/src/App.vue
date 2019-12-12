@@ -150,6 +150,7 @@
                         const edge = {
                             from: cloneClassUnitId,
                             to: unitId,
+                            content: unit.content,
                             range: unit.range,
                         };
                         data.edges.push(edge);
@@ -158,7 +159,10 @@
                 return data;
             },
             cloneClassNodeIds() {
-                return this.cloneClasses.map((cloneClass) => cloneClass[0].hash);
+                return this.cloneClasses.map((cloneClass) => {
+                    const averageSloc = parseInt(cloneClass.map((clone) => clone.sloc).reduce((acc, val) => acc + val) / cloneClass.length);
+                    return [cloneClass[0].hash, averageSloc];
+                });
             },
             unitNodes: function () {
                 return this.graphData.nodes.filter((node) => node.type === 'unit');

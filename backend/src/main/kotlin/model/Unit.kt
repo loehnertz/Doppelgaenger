@@ -16,6 +16,7 @@ data class Unit(
     val identifier: String,
     val hash: Int,
     val mass: Int,
+    val sloc: Int,
     var id: Int? = null
 ) {
     init {
@@ -57,26 +58,30 @@ data class Unit(
         private val DEFAULT_CLONETYPE = CloneType.ONE
 
         fun fromNode(node: Node, basePath: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
+            val content: String = node.tokenRange.get().toString()
             return Unit(
                 node = node,
                 contentRaw = node.tokenRange.get().toString(),
-                content = node.tokenRange.get().toString().filterOutComments(),
+                content = content.filterOutBlankLinesAndJavaComments(),
                 range = node.range.get(),
                 identifier = node.retrieveLocation().convertToPackageIdentifier(basePath),
                 hash = node.leniantHashCode(cloneType),
-                mass = node.calculateMass()
+                mass = node.calculateMass(),
+                sloc = content.countJavaSloc()
             )
         }
 
         fun fromNodeSequence(nodeSequence: List<Node>, basePath: String, cloneType: CloneType = DEFAULT_CLONETYPE): Unit {
+            val content: String = calculateNodeSequenceContent(nodeSequence)
             return Unit(
                 nodeSequence = nodeSequence,
                 contentRaw = calculateNodeSequenceContent(nodeSequence),
-                content = calculateNodeSequenceContent(nodeSequence).filterOutComments(),
+                content = content.filterOutBlankLinesAndJavaComments(),
                 range = calculateNodeSequenceRange(nodeSequence),
                 identifier = nodeSequence.first().retrieveLocation().convertToPackageIdentifier(basePath),
                 hash = nodeSequence.map { it.leniantHashCode(cloneType) }.hashCode(),
-                mass = nodeSequence.sumBy { it.calculateMass() } + nodeSequence.size
+                mass = nodeSequence.sumBy { it.calculateMass() } + nodeSequence.size,
+                sloc = content.countJavaSloc()
             )
         }
 

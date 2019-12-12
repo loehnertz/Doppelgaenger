@@ -3,7 +3,7 @@ package controller.analysis.detection
 import com.github.javaparser.ast.CompilationUnit
 import model.CloneMetrics
 import model.Unit
-import utility.MultilineCommentRegex
+import utility.countJavaSloc
 import java.io.File
 
 
@@ -51,7 +51,7 @@ class CloneMetricsCalculator(private val cloneClasses: List<Set<Unit>>, private 
     }
 
     private fun findLargestCloneClass(): Set<Unit> {
-        return cloneClasses.maxBy { cloneClass -> cloneClass.maxBy { unit -> unit.content.length }!!.content.length }!!
+        return cloneClasses.maxBy { cloneClass -> cloneClass.map { unit -> unit.sloc }.average() }!!
     }
 
     private fun selectRandomExampleClones(): List<Set<Unit>> {
@@ -60,21 +60,14 @@ class CloneMetricsCalculator(private val cloneClasses: List<Set<Unit>>, private 
 
     private fun countLinesOfCode(units: List<Unit>): Int {
         val files: Set<File> = units.filter { it.node is CompilationUnit }.map { it.node as CompilationUnit }.map { it.storage.get().path.toFile() }.toSet()
-        val fileLinesWithoutBlockComments: List<List<String>> = files.map { it.readText() }.map { it.replace(MultilineCommentRegex, "") }.map { it.split("\n") }
-        val fileLinesWithoutBlockCommentsAndLineComments: List<List<String>> = fileLinesWithoutBlockComments.map { fileContents -> fileContents.filter { !isBlankLine(it) && !isCommentLine(it) } }
-        return fileLinesWithoutBlockCommentsAndLineComments.sumBy { it.count() }
+        return files.map { it.readText() }.map { it.countJavaSloc() }.sum()
     }
 
     private fun countSourceLinesOfCode(content: String): Int {
-        return content.replace(MultilineCommentRegex, "").split("\n").filter { !isBlankLine(it) && !isCommentLine(it) }.count()
+        return content.countJavaSloc()
     }
-
-    private fun isBlankLine(line: String): Boolean = line.isBlank()
-
-    private fun isCommentLine(line: String): Boolean = line.trim().startsWith(SinglelineCommentToken)
 
     companion object Constants {
         private const val EXAMPLE_CLONE_AMOUNT = 10
-        private const val SinglelineCommentToken = "//"
     }
 }

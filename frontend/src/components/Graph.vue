@@ -99,7 +99,7 @@
             },
             setEdges(edges) {
                 for (let edge of edges) {
-                    this.graphEdges.push(this.buildEdge(edge.from, edge.to, edge.range));
+                    this.graphEdges.push(this.buildEdge(edge.from, edge.to, edge.content, edge.range));
                 }
             },
             buildCloneClassNode(id, content, mass, type) {
@@ -131,10 +131,11 @@
                     type,
                 }
             },
-            buildEdge(from, to, range) {
+            buildEdge(from, to, content, range) {
                 return {
                     from: from,
                     to: to,
+                    title: this.convertWhitespaceCharactersToHtml(content),
                     color: {
                         color: '#FFBF00',
                         highlight: '#FFBF00',
