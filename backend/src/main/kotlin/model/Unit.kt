@@ -101,7 +101,7 @@ data class Unit(
             return result
         }
 
-        private fun calculateNodeSequenceRange(nodeSequence: List<Node>): Range { // TODO: Add lineCount
+        private fun calculateNodeSequenceRange(nodeSequence: List<Node>): Range {
             val initialPosition = nodeSequence[0].range.get().begin
             val finalPosition = nodeSequence[nodeSequence.size - 1].range.get().end
             return Range(Position.pos(initialPosition.line, initialPosition.column), Position.pos(finalPosition.line, finalPosition.column))

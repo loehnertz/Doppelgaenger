@@ -28,7 +28,7 @@ class CloneDetector(private val basePath: String, private val units: List<Unit>,
         return cloneClasses.filter { cloneClass -> !sequenceCloneClasses.any { sequenceCloneClass -> cloneClassIncludedInSequenceCloneClass(cloneClass, sequenceCloneClass) } }
     }
 
-    fun findSequenceCloneClasses(clones: List<Clone>): List<Set<Unit>> /*TODO: = runBlocking */ {
+    fun findSequenceCloneClasses(clones: List<Clone>): List<Set<Unit>> {
         val sequences: List<List<Unit>> = clones.flatMap { it.toList() }.asSequence().distinct().map { it.node!!.getAllLineSiblings() }.distinct().filter { it.size > 1 }.map { it.map { node -> Unit.fromNode(node, basePath, cloneType) } }.toList()
         val cloneSequencesClasses: ArrayList<Set<List<Unit>>> = arrayListOf()
 
@@ -40,7 +40,7 @@ class CloneDetector(private val basePath: String, private val units: List<Unit>,
         for (k: Int in (minimumSequenceLengthThreshold..maximumSequenceLength).reversed()) {
             val subsequencesOfLengthK: List<List<Unit>> = sequences.flatMap { it.windowed(k) }.filter { subsequence -> subsequence.any { it.mass > massThreshold } }
             val buckets: List<List<List<Unit>>> = subsequencesOfLengthK.groupBy { subsequence -> subsequence.map { it.hash }.hashCode() }.map { it.value }.filter { it.size > 1 }
-            buckets.forEach { filterBucket(it, cloneSequencesClasses) } // TODO: use the concurrent map
+            buckets.forEach { filterBucket(it, cloneSequencesClasses) }
         }
 
         val cloneSequenceClassesUnit: List<List<List<Node>>> = cloneSequencesClasses.map { seqClass -> seqClass.map { sequence -> sequence.map { unit -> unit.node!! } } }
@@ -64,7 +64,7 @@ class CloneDetector(private val basePath: String, private val units: List<Unit>,
     }
 
     private fun sequenceIncludedInList(sequence: List<Unit>, cloneSequencesClasses: ArrayList<Set<List<Unit>>>): Boolean {
-        return cloneSequencesClasses.flatten().any { it.containsAll(sequence) }
+        return cloneSequencesClasses.flatten().any { it != sequence && it.containsAll(sequence) }
     }
 
     private fun cloneClassIncludedInSequenceCloneClass(cloneClass: Set<Unit>, sequenceCloneClass: Set<Unit>): Boolean {
