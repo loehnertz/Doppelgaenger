@@ -111,8 +111,7 @@
             />
         </div>
         <div class="box" id="readme">
-            <p class="title is-3">README</p>
-            <br>
+            <p class="title is-2">README</p>
             <vue-markdown :source="readMeMarkdown"/>
         </div>
     </div>
@@ -307,6 +306,39 @@
 
     #readme {
         margin-top: 2em;
+    }
+
+    #readme h1, #readme h2, #readme h3 {
+        font-weight: initial;
+        margin: 0.55em 0;
+        padding: initial;
+    }
+
+    #readme h1 {
+        font-size: 2em;
+    }
+
+    #readme h2 {
+        font-size: 1.5em;
+    }
+
+    #readme h3 {
+        font-size: 1.25em;
+    }
+
+    #readme ul, #readme ol {
+        margin: 20px;
+        padding-left: 40px;
+    }
+
+    #readme ul {
+        list-style: initial;
+        margin: 20px;
+        padding-left: 40px;
+    }
+
+    #readme ol ul {
+        margin: initial;
     }
 
     #graph {
