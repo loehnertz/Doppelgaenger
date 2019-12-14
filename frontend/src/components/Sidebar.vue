@@ -12,7 +12,7 @@
                         class="list-item"
                         v-for="(cloneClassId, index) in cloneClasses"
                 >
-                    {{ renderNthLargestCloneLabel(index + 1) }} ({{ cloneClassId[1] }} SLOC)
+                    {{ renderNthLargestCloneLabel(index + 1) }} ({{ cloneClassId[1] }} Clones)
                 </a>
             </div>
             <hr>

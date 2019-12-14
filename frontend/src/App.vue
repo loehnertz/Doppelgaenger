@@ -175,10 +175,7 @@
                 return data;
             },
             cloneClassNodeIds() {
-                return this.cloneClasses.map((cloneClass) => {
-                    const averageSloc = parseInt(cloneClass.map((clone) => clone.sloc).reduce((acc, val) => acc + val) / cloneClass.length);
-                    return [cloneClass[0].hash, averageSloc];
-                });
+                return this.cloneClasses.map((cloneClass) => [cloneClass[0].hash, cloneClass.length]);
             },
             unitNodes: function () {
                 return this.graphData.nodes.filter((node) => node.type === 'unit');

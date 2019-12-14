@@ -23,7 +23,7 @@ class AnalysisController {
         val sequenceCloneClasses: List<Set<Unit>> = cloneDetector.findSequenceCloneClasses(clones).toList()
         val cloneClassesFiltered: List<Set<Unit>> = cloneDetector.filterOutClonesIncludedInSequenceClasses(cloneClasses, sequenceCloneClasses)
 
-        val allClones: List<Set<Unit>> = (cloneClassesFiltered + sequenceCloneClasses).sortedByDescending { cloneClass -> cloneClass.map { it.sloc }.average() }
+        val allClones: List<Set<Unit>> = (cloneClassesFiltered + sequenceCloneClasses).sortedByDescending { it.size }
 
         val metrics: CloneMetrics = CloneMetricsCalculator(allClones, units).calculateMetrics()
         return constructAnalysisResponse(allClones, metrics)

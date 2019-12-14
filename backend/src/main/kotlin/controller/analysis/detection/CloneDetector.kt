@@ -38,7 +38,7 @@ class CloneDetector(private val basePath: String, private val units: List<Unit>,
         val maximumSequenceLength: Int = sequences.maxBy { it.size }!!.size
 
         for (k: Int in (minimumSequenceLengthThreshold..maximumSequenceLength).reversed()) {
-            val subsequencesOfLengthK: List<List<Unit>> = sequences.flatMap { it.windowed(k) }.filter { subsequence -> subsequence.sumBy { it.mass } + subsequence.size >= massThreshold}
+            val subsequencesOfLengthK: List<List<Unit>> = sequences.flatMap { it.windowed(k) }.filter { subsequence -> subsequence.sumBy { it.mass } + subsequence.size >= massThreshold }
             val buckets: List<List<List<Unit>>> = subsequencesOfLengthK.groupBy { subsequence -> subsequence.map { it.hash }.hashCode() }.map { it.value }.filter { it.size > 1 }
             buckets.forEach { filterBucket(it, cloneSequencesClasses) }
         }
