@@ -51,7 +51,7 @@ class CloneMetricsCalculator(private val cloneClasses: List<Set<Unit>>, private 
     }
 
     private fun findLargestCloneClass(): Set<Unit> {
-        return cloneClasses.maxBy { cloneClass -> cloneClass.map { unit -> unit.sloc }.average() }!!
+        return cloneClasses.maxBy { cloneClass -> cloneClass.size }!!
     }
 
     private fun selectRandomExampleClones(): List<Set<Unit>> {
