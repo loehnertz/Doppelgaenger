@@ -8,11 +8,14 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import model.CloneType
+import java.io.File
 import java.nio.file.Path
 import java.util.*
 
 
 fun <T : Any> Optional<T>.toNullable(): T? = this.orElse(null)
+
+operator fun File.plus(other: File): File = File(this, other.absolutePath)
 
 fun Any.toJson(): String = ObjectMapper().writeValueAsString(this)
 

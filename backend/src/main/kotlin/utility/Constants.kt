@@ -1,5 +1,9 @@
 package utility
 
+import java.io.File
+
+
+val ProjectRoot: File = File(System.getenv("PROJECT_ROOT") ?: "/")
 
 const val JavaFileExtension = "java"
 
