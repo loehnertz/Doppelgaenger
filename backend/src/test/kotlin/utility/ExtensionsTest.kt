@@ -121,6 +121,13 @@ internal class ExtensionsTest {
             assertThat(arbitraryChild.getAllParentNodes()).containsAll(parents)
         }
 
+        @Test
+        fun getAllLineSiblings() {
+            val siblings: List<Node> = exampleCompilationUnit.childNodes.dropLast(1)
+            val child: Node = exampleCompilationUnit.childNodes.last()
+            assertThat(child.getAllLineSiblings()).containsAll(siblings)
+        }
+
         @Nested
         inner class lenientHashCode {
             @Test
@@ -147,7 +154,6 @@ internal class ExtensionsTest {
                 assertThat(compilationUnit1.lenientHashCode(CloneType.TWO)).isEqualTo(compilationUnit2.lenientHashCode(CloneType.TWO))
             }
         }
-
 
         @Test
         fun calculateMass() {
