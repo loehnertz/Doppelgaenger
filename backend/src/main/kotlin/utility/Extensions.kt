@@ -85,8 +85,8 @@ fun Node.getAllLineSiblings(): List<Node> {
 }
 
 fun Node.leniantHashCode(cloneType: CloneType = CloneType.ONE): Int {
-    LeniantHashCodeVisitor.setCloneType(cloneType)
-    return LeniantHashCodeVisitor.hashCode(this)
+    LenientHashCodeVisitor.setCloneType(cloneType)
+    return LenientHashCodeVisitor.hashCode(this)
 }
 
 fun Node.calculateMass(): Int = 1 + this.childNodes.sumBy { it.calculateMass() }
