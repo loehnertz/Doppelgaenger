@@ -3,6 +3,7 @@ package utility
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.Node
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -62,6 +63,8 @@ internal class ExtensionsTest {
             assertThat(arbitraryChild.getAllParentNodes()).containsAll(parents)
         }
 
+        // TODO: Test hashcode ignores comments
+        @Disabled
         @Test
         fun leniantHashCode() {
             assertThat(exampleCompilationUnit.leniantHashCode()).isEqualTo(-453688427)
