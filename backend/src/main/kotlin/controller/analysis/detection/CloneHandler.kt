@@ -24,18 +24,6 @@ interface CloneHandler {
         return cloneUnits.filter { isNotSubClone(it.node!!, cloneNodes) }.toList()
     }
 
-    private fun retrieveAllCloneNodes(clones: Collection<Clone>): List<Node> {
-        return clones.flatMap { clone -> clone.toList().map { it.node!! } }.toList()
-    }
-
-    private fun retrieveAllCloneUnitNodes(clonesUnits: Collection<Unit>): List<Node> {
-        return clonesUnits.map { it.node!! }.toList()
-    }
-
-    private fun isNotSubClone(node: Node, cloneNodes: List<Node>): Boolean {
-        return !node.getAllParentNodes().any { parent -> cloneNodes.contains(parent) }
-    }
-
     fun calculateSequenceSimilarity(firstSequence: List<Unit>, secondSequence: List<Unit>): Double {
         val sharedAndUniqueNodes: List<Triple<Int, Int, Int>> = firstSequence.mapIndexed { index, unit -> retrieveSharedAndUnsharedNodes(unit.node!!, secondSequence[index].node!!) }
 
@@ -51,18 +39,6 @@ interface CloneHandler {
         return computeSimilarity(nodesShared, nodesOnlyInFirst, nodesOnlyInSecond)
     }
 
-    private fun retrieveSharedAndUnsharedNodes(firstNode: Node, secondNode: Node): Triple<Int, Int, Int> {
-        val firstCloneSubnodes: List<Node> = Visitor.visit(firstNode).filter { it.childNodes.size != 0 }
-        val secondCloneSubnodes: List<Node> = Visitor.visit(secondNode).filter { it.childNodes.size != 0 }
-        val sharedNodes: Set<Node> = firstCloneSubnodes.intersect(secondCloneSubnodes)
-
-        return Triple(sharedNodes.size, firstCloneSubnodes.filter { !sharedNodes.contains(it) }.size, secondCloneSubnodes.filter { !sharedNodes.contains(it) }.size)
-    }
-
-    fun computeSimilarity(sharedNodesCount: Int, onlyInFirstCount: Int, onlyInSecondCount: Int): Double {
-        return 2 * sharedNodesCount.toDouble() / (2 * sharedNodesCount + onlyInFirstCount + onlyInSecondCount).toDouble()
-    }
-
     fun retrieveClonedUnits(clones: List<Clone>): List<Unit> {
         return clones.flatMap { it.toList() }.toSet().let { filterOutSubClonesFromCloneUnitCollection(it) }
     }
@@ -73,5 +49,29 @@ interface CloneHandler {
 
     fun retrieveCloneClasses(clones: List<Clone>): List<CloneClass> {
         return retrieveClonedUnits(clones).groupBy { it.hash }.map { it.value.toSet() }.filter { it.size > 1 }
+    }
+
+    private fun isNotSubClone(node: Node, cloneNodes: List<Node>): Boolean {
+        return !node.getAllParentNodes().any { parent -> cloneNodes.contains(parent) }
+    }
+
+    private fun retrieveAllCloneNodes(clones: Collection<Clone>): List<Node> {
+        return clones.flatMap { clone -> clone.toList().map { it.node!! } }.toList()
+    }
+
+    private fun retrieveAllCloneUnitNodes(clonesUnits: Collection<Unit>): List<Node> {
+        return clonesUnits.map { it.node!! }.toList()
+    }
+
+    private fun retrieveSharedAndUnsharedNodes(firstNode: Node, secondNode: Node): Triple<Int, Int, Int> {
+        val firstCloneSubnodes: List<Node> = Visitor.visit(firstNode).filter { it.childNodes.size != 0 }
+        val secondCloneSubnodes: List<Node> = Visitor.visit(secondNode).filter { it.childNodes.size != 0 }
+        val sharedNodes: Set<Node> = firstCloneSubnodes.intersect(secondCloneSubnodes)
+
+        return Triple(sharedNodes.size, firstCloneSubnodes.filter { !sharedNodes.contains(it) }.size, secondCloneSubnodes.filter { !sharedNodes.contains(it) }.size)
+    }
+
+    private fun computeSimilarity(sharedNodesCount: Int, onlyInFirstCount: Int, onlyInSecondCount: Int): Double {
+        return 2 * sharedNodesCount.toDouble() / (2 * sharedNodesCount + onlyInFirstCount + onlyInSecondCount).toDouble()
     }
 }
