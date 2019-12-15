@@ -2,14 +2,15 @@ package utility
 
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.Node
+import model.CloneType
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.util.*
 
 
+@Suppress("ClassName")
 internal class ExtensionsTest {
 
     @Nested
@@ -120,12 +121,33 @@ internal class ExtensionsTest {
             assertThat(arbitraryChild.getAllParentNodes()).containsAll(parents)
         }
 
-        // TODO: Test hashcode ignores comments
-        @Disabled
-        @Test
-        fun lenientHashCode() {
-            assertThat(exampleCompilationUnit.lenientHashCode()).isEqualTo(-453688427)
+        @Nested
+        inner class lenientHashCode {
+            @Test
+            fun `lenientHashCode ignores comments`() {
+                val compilationUnitWithComments = StaticJavaParser.parse(File(this::class.java.getResource("/hashTests/TestComment.java").path))
+                val compilationUnitWithoutComments = StaticJavaParser.parse(File(this::class.java.getResource("/hashTestsCompare/TestComment.java").path))
+
+                assertThat(compilationUnitWithComments.lenientHashCode()).isEqualTo(compilationUnitWithoutComments.lenientHashCode())
+            }
+
+            @Test
+            fun `lenientHashCode does not ignore identifiers with Clone Type one`() {
+                val compilationUnit1 = StaticJavaParser.parse(File(this::class.java.getResource("/hashTests/TestIdentifiers.java").path))
+                val compilationUnit2 = StaticJavaParser.parse(File(this::class.java.getResource("/hashTestsCompare/TestIdentifiers.java").path))
+
+                assertThat(compilationUnit1.lenientHashCode()).isNotEqualTo(compilationUnit2.lenientHashCode())
+            }
+
+            @Test
+            fun `lenientHashCode ignores identifiers with Clone Type two`() {
+                val compilationUnit1 = StaticJavaParser.parse(File(this::class.java.getResource("/hashTests/TestIdentifiers.java").path))
+                val compilationUnit2 = StaticJavaParser.parse(File(this::class.java.getResource("/hashTestsCompare/TestIdentifiers.java").path))
+
+                assertThat(compilationUnit1.lenientHashCode(CloneType.TWO)).isEqualTo(compilationUnit2.lenientHashCode(CloneType.TWO))
+            }
         }
+
 
         @Test
         fun calculateMass() {
