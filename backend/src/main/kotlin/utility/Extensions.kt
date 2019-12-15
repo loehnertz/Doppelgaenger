@@ -13,20 +13,13 @@ import java.nio.file.Path
 import java.util.*
 
 
-fun <T : Any> Optional<T>.toNullable(): T? = this.orElse(null)
-
-operator fun File.plus(other: File): File = File(this, other.absolutePath)
-
 fun Any.toJson(): String = ObjectMapper().writeValueAsString(this)
+
 
 suspend fun <A, B> Iterable<A>.mapConcurrently(transform: suspend (A) -> B): List<B> = coroutineScope {
     map { async { transform(it) } }.awaitAll()
 }
 
-inline fun <T, R> Pair<T, T>.map(transform: (T) -> R): Pair<R, R> {
-    val pairList: List<R> = this.toList().map { transform(it) }
-    return Pair(pairList.first(), pairList.last())
-}
 
 fun <T> Collection<T>.cartesianProduct(): List<Pair<T, T>> {
     val pairs: ArrayList<Pair<T, T>> = arrayListOf()
@@ -40,6 +33,7 @@ fun <T> Collection<T>.cartesianProduct(): List<Pair<T, T>> {
     return pairs.toList()
 }
 
+
 fun String.isBlankLine(): Boolean = this.isBlank()
 
 fun String.isCommentLine(): Boolean = this.trim().startsWith(SinglelineCommentToken)
@@ -48,9 +42,23 @@ fun String.filterOutBlankLinesAndJavaComments(): String = this.replace("\r", "")
 
 fun String.countJavaSloc(): Int = this.filterOutBlankLinesAndJavaComments().split("\n").count()
 
+
+fun <T : Any> Optional<T>.toNullable(): T? = this.orElse(null)
+
+
+operator fun File.plus(other: File): File = File(this, other.absolutePath)
+
+
 fun Path.convertToPackageIdentifier(basePath: String): String {
     return this.toFile().absolutePath.substringAfterLast(basePath).removePrefix("/").replace('/', '.').removeSuffix(".$JavaFileExtension")
 }
+
+
+inline fun <T, R> Pair<T, T>.map(transform: (T) -> R): Pair<R, R> {
+    val pairList: List<R> = this.toList().map { transform(it) }
+    return Pair(pairList.first(), pairList.last())
+}
+
 
 fun Node.retrieveLocation(): Path {
     return if (this.parentNode.isEmpty) {
