@@ -24,6 +24,25 @@ the output can be explored visually:<br><br>
 The tool consists of a back-end written in Kotlin as well as front-end built with Vue.js.
 The entirety of the application is bundled into Docker images and can be executed with `docker-compose`.
 After having it installed, while in the root project directory, just run `docker-compose up -d`.
+Instead of cloning (no pun intended) the entire repository, you can also just create this `docker-compose.yml` anywhere and run `docker-compose up -d`:
+```yaml
+version: "3"
+services:
+  frontend:
+    image: loehnertz/doppelgaenger-frontend
+    ports:
+      - 8016:80  # Change the port in front of the colon as you wish
+    depends_on:
+      - backend
+  backend:
+    image: loehnertz/doppelgaenger-backend
+    ports:
+      - 8888:8888  # Do not change these ports
+    volumes:
+      - /:/app/projects/
+    environment:
+      PROJECT_ROOT: "/app/projects/"
+```
 
 
 ## Usage
