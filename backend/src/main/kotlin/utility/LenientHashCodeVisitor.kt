@@ -15,11 +15,11 @@ import model.CloneType
 
 
 /**
- * This class is derived from <code>com.github.javaparser.ast.visitor.HashCodeVisitor</code>
- * to ignore <code>com.github.javaparser.ast.expr.NameExpr</code> in the <code>hashCode()</code>
+ * This class is derived from [com.github.javaparser.ast.visitor.HashCodeVisitor]
+ * to ignore different levels of [Node] types in the <code>hashCode()</code>
  * calculation. Additionally, instead of Java it is written in Kotlin.
  */
-class LeniantHashCodeVisitor private constructor(private var cloneType: CloneType) : GenericVisitor<Int?, Void?> {
+class LenientHashCodeVisitor private constructor(private var cloneType: CloneType) : GenericVisitor<Int?, Void?> {
     override fun visit(n: AnnotationDeclaration?, arg: Void?): Int? {
         return n!!.members.accept(this, arg)!! * 31 + n.modifiers.accept(this, arg)!! * 31 + n.name.accept(this, arg)!! * 31 + n.annotations.accept(this, arg)!! * 31
     }
@@ -413,7 +413,7 @@ class LeniantHashCodeVisitor private constructor(private var cloneType: CloneTyp
     }
 
     companion object {
-        private val SINGLETON: LeniantHashCodeVisitor = LeniantHashCodeVisitor(cloneType = CloneType.ONE)
+        private val SINGLETON: LenientHashCodeVisitor = LenientHashCodeVisitor(cloneType = CloneType.ONE)
 
         fun hashCode(node: Node): Int {
             return node.accept(SINGLETON, null)!!

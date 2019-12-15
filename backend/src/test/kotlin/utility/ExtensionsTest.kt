@@ -42,7 +42,7 @@ internal class ExtensionsTest {
         fun cartesianProduct() {
             val value: List<Pair<Int, Int>> = listOf(1, 2, 3).cartesianProduct()
             assertThat(value).contains(Pair(1, 2), Pair(1, 3), Pair(2, 3))
-            assertThat(value.flatMap { it.toList() }).contains(1, 2, 3)
+            assertThat(value.flatMap { it.toList() }).containsExactlyInAnyOrder(1, 2, 3)
         }
     }
 

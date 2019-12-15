@@ -23,6 +23,13 @@ data class Unit(
         id = hashCode()
     }
 
+    fun contains(clone: Unit): Boolean = when {
+        this == clone                       -> false
+        this.identifier != clone.identifier -> false
+        this.range.contains(clone.range)    -> true
+        else                                -> false
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -45,13 +52,6 @@ data class Unit(
 
     override fun toString(): String {
         return "Unit(id='$id', content='$content', range=$range, identifier=$identifier)"
-    }
-
-    fun contains(clone: Unit): Boolean = when {
-        this == clone                       -> false
-        this.identifier != clone.identifier -> false
-        this.range.contains(clone.range)    -> true
-        else                                -> false
     }
 
     companion object {
