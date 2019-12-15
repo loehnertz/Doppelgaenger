@@ -47,9 +47,7 @@ interface CloneHandler {
 
     fun calculateNodeSimilarity(firstNode: Node, secondNode: Node): Double {
         val (nodesShared: Int, nodesOnlyInFirst: Int, nodesOnlyInSecond: Int) = retrieveSharedAndUnsharedNodes(firstNode, secondNode)
-
-        val similarity = computeSimilarity(nodesShared, nodesOnlyInFirst, nodesOnlyInSecond)
-        return similarity
+        return computeSimilarity(nodesShared, nodesOnlyInFirst, nodesOnlyInSecond)
     }
 
     private fun retrieveSharedAndUnsharedNodes(firstNode: Node, secondNode: Node): Triple<Int, Int, Int> {
