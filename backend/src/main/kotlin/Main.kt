@@ -14,9 +14,11 @@ import io.ktor.jackson.jackson
 import io.ktor.routing.Routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.util.KtorExperimentalAPI
 import resource.analysis
 
 
+@KtorExperimentalAPI
 fun Application.module() {
     install(DefaultHeaders)
 
@@ -39,6 +41,7 @@ fun Application.module() {
     }
 }
 
+@KtorExperimentalAPI
 fun main() {
     embeddedServer(factory = Netty, port = 8888, module = Application::module).start()
 }
