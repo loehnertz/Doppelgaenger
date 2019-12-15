@@ -84,7 +84,7 @@ fun Node.getAllLineSiblings(): List<Node> {
     }
 }
 
-fun Node.leniantHashCode(cloneType: CloneType = CloneType.ONE): Int {
+fun Node.lenientHashCode(cloneType: CloneType = CloneType.ONE): Int {
     LenientHashCodeVisitor.setCloneType(cloneType)
     return LenientHashCodeVisitor.hashCode(this)
 }
