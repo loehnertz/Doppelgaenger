@@ -9,7 +9,7 @@ object Visitor {
     fun visit(node: Node, nodeConversionFunction: (Node) -> Unit): List<Unit> {
         val nodes: ArrayList<Node> = arrayListOf()
         RecursiveVisitor(nodes).also { it.visitPreOrder(node) }
-        return nodes.map { nodeConversionFunction(it) }.also { nodes.clear() }
+        return nodes.map { nodeConversionFunction(it) }
     }
 
     fun visit(node: Node): List<Node> {
