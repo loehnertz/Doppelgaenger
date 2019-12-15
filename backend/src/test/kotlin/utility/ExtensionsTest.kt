@@ -47,7 +47,7 @@ internal class ExtensionsTest {
 
     @Nested
     inner class NodeTest {
-        private val exampleCompilationUnit = StaticJavaParser.parse(File(this::class.java.getResource("/Example.java").path))
+        private val exampleCompilationUnit = StaticJavaParser.parse(File(this::class.java.getResource("/java/Example.java").path))
 
         @Test
         fun retrieveLocation() {
