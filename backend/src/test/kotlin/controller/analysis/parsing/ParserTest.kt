@@ -77,11 +77,6 @@ internal class ParserTest {
         }
 
         @Test
-        fun `The ID of the Unit is correct`() {
-            assertThat(constructNodeConversionFunction(compilationUnit).id).isEqualTo(-1140852373)
-        }
-
-        @Test
         fun `The content of the Unit has the same amount of SLOC as the calculated SLOC`() {
             val unit = constructNodeConversionFunction(compilationUnit)
             assertThat(unit.content.split("\n").size).isEqualTo(unit.sloc)
