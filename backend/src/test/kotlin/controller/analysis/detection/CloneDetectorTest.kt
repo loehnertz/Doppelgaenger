@@ -1,32 +1,13 @@
 package controller.analysis.detection
 
-import controller.analysis.parsing.Parser
-import model.CloneType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-
 import org.junit.jupiter.api.TestInstance
-import java.io.File
 
 @Suppress("ClassName")
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-internal class CloneDetectorTest {
-
-    private val exampleFile = File(this::class.java.getResource("/java/").path)
-    private val cloneDetector: CloneDetector
-
-    init {
-        val basePath = ""
-        val cloneType = CloneType.ONE
-        cloneDetector = CloneDetector(
-            basePath = basePath,
-            units = Parser(basePath, exampleFile, cloneType).parse(),
-            massThreshold = 5,
-            similarityThreshold = 0.0,
-            cloneType = cloneType
-        )
-    }
+internal class CloneDetectorTest : AbstractCloneDetectorTest() {
 
     @Nested
     inner class detectClones {
@@ -62,7 +43,7 @@ internal class CloneDetectorTest {
         @Test
         fun `All classes have same size and content`() {
             assertThat(cloneSequenceClasses).allMatch { it.all { clone -> clone.content == it.first().content } }
-            assertThat(cloneSequenceClasses).allMatch { it.size == 6 }
+            assertThat(cloneSequenceClasses).allMatch { it.all { clone -> clone.range.lineCount == 6 } }
         }
     }
 
