@@ -65,7 +65,7 @@ data class Unit(
                 content = content.filterOutBlankLinesAndJavaComments(),
                 range = node.range.get(),
                 identifier = node.retrieveLocation().convertToPackageIdentifier(basePath),
-                hash = node.leniantHashCode(cloneType),
+                hash = node.lenientHashCode(cloneType),
                 mass = node.calculateMass(),
                 sloc = content.countJavaSloc()
             )
@@ -79,7 +79,7 @@ data class Unit(
                 content = content.filterOutBlankLinesAndJavaComments(),
                 range = calculateNodeSequenceRange(nodeSequence),
                 identifier = nodeSequence.first().retrieveLocation().convertToPackageIdentifier(basePath),
-                hash = nodeSequence.map { it.leniantHashCode(cloneType) }.hashCode(),
+                hash = nodeSequence.map { it.lenientHashCode(cloneType) }.hashCode(),
                 mass = nodeSequence.sumBy { it.calculateMass() } + nodeSequence.size,
                 sloc = content.countJavaSloc()
             )

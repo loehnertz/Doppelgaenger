@@ -66,8 +66,8 @@ internal class ExtensionsTest {
         // TODO: Test hashcode ignores comments
         @Disabled
         @Test
-        fun leniantHashCode() {
-            assertThat(exampleCompilationUnit.leniantHashCode()).isEqualTo(-453688427)
+        fun lenientHashCode() {
+            assertThat(exampleCompilationUnit.lenientHashCode()).isEqualTo(-453688427)
         }
 
         @Test
