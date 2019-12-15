@@ -3,11 +3,12 @@ package controller.analysis.detection
 import com.github.javaparser.ast.CompilationUnit
 import model.CloneMetrics
 import model.Unit
+import utility.CloneClass
 import utility.countJavaSloc
 import java.io.File
 
 
-class CloneMetricsCalculator(private val cloneClasses: List<Set<Unit>>, private val units: List<Unit>) : CloneHandler {
+class CloneMetricsCalculator(private val cloneClasses: List<CloneClass>, private val units: List<Unit>) : CloneHandler {
     private val clonedUnits: List<Unit> = retrieveClonedUnitsFromCloneClasses(cloneClasses)
 
     fun calculateMetrics(): CloneMetrics {
@@ -50,7 +51,7 @@ class CloneMetricsCalculator(private val cloneClasses: List<Set<Unit>>, private 
         return Pair(largestClone, largestClone.map { it.range.end.line - it.range.begin.line }.max()!!)
     }
 
-    private fun findLargestCloneClass(): Set<Unit> {
+    private fun findLargestCloneClass(): CloneClass {
         return cloneClasses.maxBy { it.size }!!
     }
 

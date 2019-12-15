@@ -4,6 +4,7 @@ import com.github.javaparser.ast.Node
 import model.CloneType
 import model.Unit
 import utility.Clone
+import utility.CloneClass
 import utility.cartesianProduct
 import utility.getAllLineSiblings
 
@@ -11,7 +12,7 @@ import utility.getAllLineSiblings
 class CloneDetector(private val basePath: String, private val units: List<Unit>, massThreshold: Int?, private val similarityThreshold: Double, private val cloneType: CloneType) : CloneHandler {
     private val massThreshold: Int = massThreshold ?: calculateNodeMassAverage()
 
-    fun detectClones(): Pair<List<Clone>, List<Set<Unit>>> {
+    fun detectClones(): Pair<List<Clone>, List<CloneClass>> {
         val clones: List<Clone> = units
             .filter { it.mass >= massThreshold }
             .groupBy { it.hash }
@@ -20,15 +21,15 @@ class CloneDetector(private val basePath: String, private val units: List<Unit>,
             .flatMap { it.cartesianProduct() }
             .filter { calculateNodeSimilarity(it.first.node!!, it.second.node!!) >= similarityThreshold }
             .let { filterOutSubClonesFromCloneCollection(it) }
-        val cloneClasses: List<Set<Unit>> = retrieveCloneClasses(clones)
+        val cloneClasses: List<CloneClass> = retrieveCloneClasses(clones)
         return clones to cloneClasses
     }
 
-    fun filterOutClonesIncludedInSequenceClasses(cloneClasses: List<Set<Unit>>, sequenceCloneClasses: List<Set<Unit>>): List<Set<Unit>> {
+    fun filterOutClonesIncludedInSequenceClasses(cloneClasses: List<CloneClass>, sequenceCloneClasses: List<CloneClass>): List<CloneClass> {
         return cloneClasses.filter { cloneClass -> !sequenceCloneClasses.any { sequenceCloneClass -> cloneClassIncludedInSequenceCloneClass(cloneClass, sequenceCloneClass) } }
     }
 
-    fun findSequenceCloneClasses(clones: List<Clone>): List<Set<Unit>> {
+    fun findSequenceCloneClasses(clones: List<Clone>): List<CloneClass> {
         val sequences: List<List<Unit>> = clones.flatMap { it.toList() }.asSequence().distinct().map { it.node!!.getAllLineSiblings() }.distinct().filter { it.size > 1 }.map { it.map { node -> Unit.fromNode(node, basePath, cloneType) } }.toList()
         val cloneSequencesClasses: ArrayList<Set<List<Unit>>> = arrayListOf()
 
@@ -67,7 +68,7 @@ class CloneDetector(private val basePath: String, private val units: List<Unit>,
         return cloneSequencesClasses.flatten().any { it != sequence && it.containsAll(sequence) }
     }
 
-    private fun cloneClassIncludedInSequenceCloneClass(cloneClass: Set<Unit>, sequenceCloneClass: Set<Unit>): Boolean {
+    private fun cloneClassIncludedInSequenceCloneClass(cloneClass: CloneClass, sequenceCloneClass: CloneClass): Boolean {
         return cloneClass.all { clone -> sequenceCloneClass.any { sequenceClone -> sequenceClone.nodeSequence!!.contains(clone.node!!) } }
     }
 

@@ -1,10 +1,10 @@
 package model.resource
 
 import model.CloneMetrics
-import model.Unit
+import utility.CloneClass
 
 
 class AnalysisResponse(
-    val cloneClasses: List<Set<Unit>>,
+    val cloneClasses: List<CloneClass>,
     val metrics: CloneMetrics
 )

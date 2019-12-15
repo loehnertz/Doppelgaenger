@@ -4,6 +4,7 @@ import com.github.javaparser.ast.Node
 import controller.analysis.parsing.Visitor
 import model.Unit
 import utility.Clone
+import utility.CloneClass
 import utility.getAllParentNodes
 
 
@@ -66,11 +67,11 @@ interface CloneHandler {
         return clones.flatMap { it.toList() }.toSet().let { filterOutSubClonesFromCloneUnitCollection(it) }
     }
 
-    fun retrieveClonedUnitsFromCloneClasses(cloneClasses: List<Set<Unit>>): List<Unit> {
+    fun retrieveClonedUnitsFromCloneClasses(cloneClasses: List<CloneClass>): List<Unit> {
         return cloneClasses.flatten().filter { clone -> !cloneClasses.flatten().any { it.contains(clone) } }
     }
 
-    fun retrieveCloneClasses(clones: List<Clone>): List<Set<Unit>> {
+    fun retrieveCloneClasses(clones: List<Clone>): List<CloneClass> {
         return retrieveClonedUnits(clones).groupBy { it.hash }.map { it.value.toSet() }.filter { it.size > 1 }
     }
 }
