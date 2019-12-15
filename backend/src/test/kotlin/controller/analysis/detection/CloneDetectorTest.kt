@@ -62,7 +62,7 @@ internal class CloneDetectorTest {
         @Test
         fun `All classes have same size and content`() {
             assertThat(cloneSequenceClasses).allMatch { it.all { clone -> clone.content == it.first().content } }
-            assertThat(cloneSequenceClasses).allMatch { it.size == 6 }
+            assertThat(cloneSequenceClasses).allMatch { it.all { clone -> clone.range.lineCount == 6 } }
         }
     }
 
