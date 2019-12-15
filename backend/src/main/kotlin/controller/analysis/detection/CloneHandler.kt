@@ -24,10 +24,6 @@ interface CloneHandler {
         return cloneUnits.filter { isNotSubClone(it.node!!, cloneNodes) }.toList()
     }
 
-    private fun isNotSubClone(node: Node, cloneNodes: List<Node>): Boolean {
-        return !node.getAllParentNodes().any { parent -> cloneNodes.contains(parent) }
-    }
-
     fun calculateSequenceSimilarity(firstSequence: List<Unit>, secondSequence: List<Unit>): Double {
         val sharedAndUniqueNodes: List<Triple<Int, Int, Int>> = firstSequence.mapIndexed { index, unit -> retrieveSharedAndUnsharedNodes(unit.node!!, secondSequence[index].node!!) }
 
@@ -53,6 +49,10 @@ interface CloneHandler {
 
     fun retrieveCloneClasses(clones: List<Clone>): List<CloneClass> {
         return retrieveClonedUnits(clones).groupBy { it.hash }.map { it.value.toSet() }.filter { it.size > 1 }
+    }
+
+    private fun isNotSubClone(node: Node, cloneNodes: List<Node>): Boolean {
+        return !node.getAllParentNodes().any { parent -> cloneNodes.contains(parent) }
     }
 
     private fun retrieveAllCloneNodes(clones: Collection<Clone>): List<Node> {
