@@ -95,6 +95,17 @@ internal class ExtensionsTest {
     }
 
     @Nested
+    inner class PathTest {
+
+        @Test
+        fun convertToPackageIdentifier() {
+            val testPath = File(this::class.java.getResource("/java/Example.java").path).toPath()
+
+            assertThat(testPath.convertToPackageIdentifier("java")).isEqualTo("")
+        }
+    }
+
+    @Nested
     inner class PairTest {
 
         @Test
@@ -147,7 +158,6 @@ internal class ExtensionsTest {
                 assertThat(compilationUnit1.lenientHashCode(CloneType.TWO)).isEqualTo(compilationUnit2.lenientHashCode(CloneType.TWO))
             }
         }
-
 
         @Test
         fun calculateMass() {
