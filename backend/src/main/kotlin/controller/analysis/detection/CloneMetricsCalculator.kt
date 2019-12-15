@@ -46,8 +46,8 @@ class CloneMetricsCalculator(private val cloneClasses: List<Set<Unit>>, private 
     }
 
     private fun findLargestClone(): Pair<Set<Unit>, Int> {
-        val largestClone: Set<Unit> = cloneClasses.maxBy { cloneClass -> cloneClass.map { it.range.end.line - it.range.begin.line }.max()!! }!!
-        return Pair(largestClone, largestClone.map { it.range.end.line - it.range.begin.line }.max()!!)
+        val largestClone: Set<Unit> = cloneClasses.maxBy { cloneClass -> cloneClass.map { it.range.lineCount }.max()!! }!!
+        return Pair(largestClone, largestClone.map { it.range.lineCount }.max()!!)
     }
 
     private fun findLargestCloneClass(): Set<Unit> {
