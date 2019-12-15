@@ -1,0 +1,16 @@
+version: "3"
+services:
+  frontend:
+    build: frontend/
+    ports:
+      - 8016:80
+    depends_on:
+      - backend
+  backend:
+    build: backend/
+    ports:
+      - 8888:8888
+    volumes:
+      - /:/app/projects/
+    environment:
+      PROJECT_ROOT: "/app/projects/"
