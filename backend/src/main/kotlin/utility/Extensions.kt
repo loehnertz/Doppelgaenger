@@ -69,11 +69,17 @@ fun Node.retrieveLocation(): Path {
 }
 
 fun Node.getAllParentNodes(): Set<Node> {
-    return if (this.parentNode.isEmpty) {
-        setOf()
-    } else {
-        this.parentNode.get().getAllParentNodes().plus(this.parentNode.get())
+    if (this.parentNode.isEmpty) return emptySet()
+
+    val parentNodes: Set<Node> = mutableSetOf()
+    val parentNodeQueue: Queue<Node> = ArrayDeque()
+    parentNodeQueue.add(this.parentNode.get())
+    while (parentNodeQueue.isNotEmpty()) {
+        val parentNode = parentNodeQueue.remove()
+        parentNodes.plus(parentNode)
+        if (parentNode.parentNode.isPresent) parentNodeQueue.add(parentNode.parentNode.get())
     }
+    return parentNodes
 }
 
 fun Node.getAllLineSiblings(): List<Node> {
